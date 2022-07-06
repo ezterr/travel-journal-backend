@@ -32,6 +32,7 @@ export class User extends BaseEntity implements UserInterface {
   @Column({
     default: null,
     nullable: true,
+    length: 36,
   })
   @Index({ unique: true })
   public jwtId: string;

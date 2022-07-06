@@ -8,4 +8,6 @@ export interface UserInterface {
   jwtId: string;
 }
 
-export type CreateUserResponse = Omit<UserInterface, 'hashPwd' | 'jwtId'>;
+export type UserSaveData = Omit<UserInterface, 'hashPwd'>;
+export type GetUserResponse = Omit<UserSaveData, 'jwtId'>;
+export type CreateUserResponse = Omit<UserSaveData, 'jwtId'>;

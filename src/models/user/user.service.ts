@@ -2,6 +2,7 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -32,8 +33,12 @@ export class UserService {
     return `This action returns all user`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    const user = await User.findOne({ where: { id } });
+    if (!user) throw new NotFoundException();
+
+    const { jwtId, hashPwd, ...userResponse } = user;
+    return userResponse;
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
