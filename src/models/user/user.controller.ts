@@ -11,9 +11,9 @@ import {
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { CreateUserResponse } from '../../types/user/user';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AccountOwnerGuard } from '../../common/guards/account-owner.guard';
+import { CreateUserResponse } from '../../types/user/response';
 
 @Controller('/api/user')
 export class UserController {

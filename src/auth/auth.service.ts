@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { GetUserResponse } from '../types/user/user';
 import { User } from '../models/user/entities/user.entity';
 import { compare } from 'bcrypt';
 import { UserService } from '../models/user/user.service';
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuid } from 'uuid';
+import { GetUserResponse } from '../types/user/response';
 
 @Injectable()
 export class AuthService {

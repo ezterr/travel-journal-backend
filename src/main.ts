@@ -3,7 +3,7 @@ import { AppModule } from './app.module';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
-import { GlobalExceptionFilter } from './common/filters/GlobalExceptionFilter';
+import { GlobalExceptionFilter } from './common/filters/global-exception-filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

@@ -9,5 +9,3 @@ export interface UserInterface {
 }
 
 export type UserSaveData = Omit<UserInterface, 'hashPwd'>;
-export type GetUserResponse = Omit<UserSaveData, 'jwtId'>;
-export type CreateUserResponse = Omit<UserSaveData, 'jwtId'>;
