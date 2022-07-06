@@ -5,9 +5,10 @@ import {
   Index,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { UserInterface } from '../../../types/user/user';
 
 @Entity()
-export class User extends BaseEntity {
+export class User extends BaseEntity implements UserInterface {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
