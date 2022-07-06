@@ -29,10 +29,6 @@ export class UserService {
     return userResponse;
   }
 
-  findAll() {
-    return `This action returns all user`;
-  }
-
   async findOne(id: string) {
     const user = await User.findOne({ where: { id } });
     if (!user) throw new NotFoundException();
