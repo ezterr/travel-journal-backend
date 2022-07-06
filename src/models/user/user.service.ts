@@ -10,6 +10,7 @@ import { User } from './entities/user.entity';
 import { compare, hash } from 'bcrypt';
 import {
   CreateUserResponse,
+  DeleteUserResponse,
   GetUserResponse,
   UpdateUserResponse,
 } from '../../types/user/response';
@@ -72,8 +73,14 @@ export class UserService {
     return userResponse;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string): Promise<DeleteUserResponse> {
+    const user = await User.findOne({ where: { id } });
+    if (!user) throw new NotFoundException();
+
+    await user.remove();
+
+    const { jwtId, hashPwd, ...userResponse } = user;
+    return userResponse;
   }
 
   async checkUserFieldUniquenessAndThrow(value: {

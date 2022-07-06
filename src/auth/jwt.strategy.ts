@@ -1,7 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { config } from '../config';
-import { UnauthorizedException } from '@nestjs/common';
+import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { User } from '../models/user/entities/user.entity';
 
 function cookieExtractor(req: any): null | string {
@@ -18,6 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any, done: (error, user) => void) {
+    console.log(payload);
     if (!payload?.jwtId) return done(new UnauthorizedException(), false);
 
     const user = await User.findOne({

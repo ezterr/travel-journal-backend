@@ -13,7 +13,11 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AccountOwnerGuard } from '../../common/guards/account-owner.guard';
-import { CreateUserResponse, GetUserResponse } from '../../types/user/response';
+import {
+  CreateUserResponse,
+  DeleteUserResponse,
+  GetUserResponse,
+} from '../../types/user/response';
 
 @Controller('/api/user')
 export class UserController {
@@ -38,13 +42,12 @@ export class UserController {
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<GetUserResponse> {
-    console.log(updateUserDto);
     return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':userId')
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
-  remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+  remove(@Param('userId') userId: string): Promise<DeleteUserResponse> {
+    return this.userService.remove(userId);
   }
 }
