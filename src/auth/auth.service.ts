@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { User } from '../models/user/entities/user.entity';
 import { compare } from 'bcrypt';
 import { UserService } from '../models/user/user.service';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuid } from 'uuid';
 import { GetUserResponse } from '../types/user/response';
@@ -11,7 +11,7 @@ import { config } from '../config';
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(UserService) private userService: User,
+    @Inject(UserService) private userService: UserService,
     @Inject(JwtService) private jwtService: JwtService,
   ) {}
 
@@ -39,7 +39,7 @@ export class AuthService {
         domain: config.jwtCookieDomain,
       });
     } else {
-      user.jwtId = uuid();
+      user.jwtId = await this.generateNewJwtId();
       await user.save();
 
       const payload = { jwtId: user.jwtId };
@@ -81,5 +81,18 @@ export class AuthService {
     });
 
     return { ok: true };
+  }
+
+  async generateNewJwtId(): Promise<string> {
+    let isUniqueness: boolean;
+    let newJwtId: string;
+    do {
+      newJwtId = uuid();
+      isUniqueness = await this.userService.checkUserFieldUniqueness({
+        jwtId: newJwtId,
+      });
+    } while (!isUniqueness);
+
+    return newJwtId;
   }
 }

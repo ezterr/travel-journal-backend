@@ -13,7 +13,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AccountOwnerGuard } from '../../common/guards/account-owner.guard';
-import { CreateUserResponse } from '../../types/user/response';
+import { CreateUserResponse, GetUserResponse } from '../../types/user/response';
 
 @Controller('/api/user')
 export class UserController {
@@ -34,8 +34,12 @@ export class UserController {
 
   @Patch(':userId')
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<GetUserResponse> {
+    console.log(updateUserDto);
+    return this.userService.update(id, updateUserDto);
   }
 
   @Delete(':userId')

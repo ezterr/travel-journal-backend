@@ -1,8 +1,6 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { IsString, Length, Matches } from 'class-validator';
-import { PutUserDto } from './put-user.dto';
+import { IsEmail, IsString, Length, Matches } from 'class-validator';
 
-export class UpdateUserDto extends PartialType(PutUserDto) {
+export class PutUserDto {
   @IsString({ message: 'first name should be text' })
   @Length(2, 64, {
     message:
@@ -17,7 +15,20 @@ export class UpdateUserDto extends PartialType(PutUserDto) {
   })
   public lastName: string;
 
-  @IsString()
+  @IsString({ message: 'username should be text' })
+  @Length(2, 64, {
+    message:
+      'username should contain at least 2 characters and not more than 64',
+  })
+  public username: string;
+
+  @IsEmail()
+  @Length(3, 255, {
+    message: 'email should contain at least 3 characters and not more than 255',
+  })
+  public email: string;
+
+  @IsString({ message: 'password should be text' })
   public password: string;
 
   @IsString({ message: 'password should be text' })
