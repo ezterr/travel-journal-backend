@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
+import { GlobalExceptionFilter } from './common/filters/GlobalExceptionFilter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,7 +16,6 @@ async function bootstrap() {
   app.use(helmet());
   app.useGlobalPipes(
     new ValidationPipe({
-      disableErrorMessages: true,
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
@@ -24,6 +24,7 @@ async function bootstrap() {
       },
     }),
   );
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   await app.listen(3000);
 }

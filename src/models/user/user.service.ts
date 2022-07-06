@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -8,8 +12,8 @@ import { CreateUserResponse } from '../../types/user/user';
 @Injectable()
 export class UserService {
   async create(createUserDto: CreateUserDto): Promise<CreateUserResponse> {
-    // await this.checkUserFieldUniqueness({ email: createUserDto.email });
-    // await this.checkUserFieldUniqueness({ username: createUserDto.username });
+    await this.checkUserFieldUniqueness({ email: createUserDto.email });
+    await this.checkUserFieldUniqueness({ username: createUserDto.username });
 
     const user = new User();
     user.firstName = createUserDto.firstName;
@@ -46,6 +50,6 @@ export class UserService {
     });
 
     const [key] = Object.keys(value);
-    if (user) throw new BadRequestException(`${key} is not unique`);
+    if (user) throw new ConflictException(`${key} is not unique`);
   }
 }
