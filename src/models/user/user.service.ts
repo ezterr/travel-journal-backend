@@ -13,8 +13,9 @@ import {
   DeleteUserResponse,
   GetUserResponse,
   UpdateUserResponse,
-} from '../../types/user/response';
+} from '../../types/user/user-response';
 import { createHashPwd } from '../../utils/create-hash-pwd';
+import { UserSaveResponseData } from '../../types';
 
 @Injectable()
 export class UserService {
@@ -32,17 +33,15 @@ export class UserService {
     user.hashPwd = await createHashPwd(createUserDto.password);
 
     await user.save();
-    const { hashPwd, jwtId, ...userResponse } = user;
 
-    return userResponse;
+    return this.filter(user);
   }
 
   async findOne(id: string): Promise<GetUserResponse> {
     const user = await User.findOne({ where: { id } });
     if (!user) throw new NotFoundException();
 
-    const { jwtId, hashPwd, ...userResponse } = user;
-    return userResponse;
+    return this.filter(user);
   }
 
   async update(
@@ -69,8 +68,7 @@ export class UserService {
 
     await user.save();
 
-    const { jwtId, hashPwd, ...userResponse } = user;
-    return userResponse;
+    return this.filter(user);
   }
 
   async remove(id: string): Promise<DeleteUserResponse> {
@@ -79,8 +77,7 @@ export class UserService {
 
     await user.remove();
 
-    const { jwtId, hashPwd, ...userResponse } = user;
-    return userResponse;
+    return this.filter(user);
   }
 
   async checkUserFieldUniquenessAndThrow(value: {
@@ -102,5 +99,11 @@ export class UserService {
     });
 
     return !user;
+  }
+
+  filter(userEntity: User): UserSaveResponseData {
+    const { jwtId, hashPwd, ...userResponse } = userEntity;
+
+    return userResponse;
   }
 }

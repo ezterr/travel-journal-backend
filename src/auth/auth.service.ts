@@ -5,8 +5,8 @@ import { UserService } from '../models/user/user.service';
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuid } from 'uuid';
-import { GetUserResponse } from '../types/user/response';
 import { config } from '../config';
+import { LoginResponse, LogoutAllResponse, LogoutResponse } from '../types';
 
 @Injectable()
 export class AuthService {
@@ -29,7 +29,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: User, res: Response): Promise<GetUserResponse> {
+  async login(user: User, res: Response): Promise<LoginResponse> {
     if (user.jwtId) {
       const payload = { jwtId: user.jwtId };
       res.cookie('access_token', this.jwtService.sign(payload), {
@@ -51,12 +51,10 @@ export class AuthService {
       });
     }
 
-    const { jwtId, ...userResponse } = user;
-
-    return userResponse;
+    return this.userService.filter(user);
   }
 
-  async logout(res: Response) {
+  async logout(res: Response): Promise<LogoutResponse> {
     res.clearCookie('access_token', {
       secure: false,
       httpOnly: true,
@@ -67,7 +65,7 @@ export class AuthService {
     return { ok: true };
   }
 
-  async logoutAll(user: User, res: Response) {
+  async logoutAll(user: User, res: Response): Promise<LogoutAllResponse> {
     if (!user?.jwtId) return { ok: false };
 
     user.jwtId = null;

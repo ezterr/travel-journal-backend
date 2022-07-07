@@ -5,6 +5,7 @@ import {
   Inject,
   Response,
   Delete,
+  HttpCode,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Response as Res } from 'express';
@@ -12,23 +13,27 @@ import { AuthService } from './auth.service';
 import { User as UserEntity } from '../models/user/entities/user.entity';
 import { User } from '../common/decorators/user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { LoginResponse, LogoutAllResponse, LogoutResponse } from '../types';
 
 @Controller('/api/auth')
 export class AuthController {
   constructor(@Inject(AuthService) private authService: AuthService) {}
 
-  @UseGuards(AuthGuard('local'))
   @Post('/login')
+  @UseGuards(AuthGuard('local'))
+  @HttpCode(200)
   async login(
     @Response({ passthrough: true }) res: Res,
     @User() user: UserEntity,
-  ) {
+  ): Promise<LoginResponse> {
     return this.authService.login(user, res);
   }
 
   @Delete('/logout')
   @UseGuards(JwtAuthGuard)
-  async logout(@Response({ passthrough: true }) res: Res) {
+  async logout(
+    @Response({ passthrough: true }) res: Res,
+  ): Promise<LogoutResponse> {
     return this.authService.logout(res);
   }
 
@@ -37,7 +42,7 @@ export class AuthController {
   async logoutAll(
     @User() user: UserEntity,
     @Response({ passthrough: true }) res: Res,
-  ) {
+  ): Promise<LogoutAllResponse> {
     return this.authService.logoutAll(user, res);
   }
 }

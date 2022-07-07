@@ -17,7 +17,7 @@ import {
   CreateUserResponse,
   DeleteUserResponse,
   GetUserResponse,
-} from '../../types/user/response';
+} from '../../types/user/user-response';
 
 @Controller('/api/user')
 export class UserController {
