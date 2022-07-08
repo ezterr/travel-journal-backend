@@ -3,28 +3,38 @@ import {
   Post,
   UseGuards,
   Inject,
-  Response,
+  Res,
   Delete,
   HttpCode,
+  Get,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { Response as Res } from 'express';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
-import { User as UserEntity } from '../models/user/entities/user.entity';
-import { User } from '../common/decorators/user.decorator';
+import { User as User } from '../models/user/entities/user.entity';
+import { UserObj } from '../common/decorators/user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
-import { LoginResponse, LogoutAllResponse, LogoutResponse } from '../types';
+import {
+  GetUserFromTokenResponse,
+  LoginResponse,
+  LogoutAllResponse,
+  LogoutResponse,
+} from '../types';
+import { UserService } from '../models/user/user.service';
 
 @Controller('/api/auth')
 export class AuthController {
-  constructor(@Inject(AuthService) private authService: AuthService) {}
+  constructor(
+    @Inject(AuthService) private authService: AuthService,
+    @Inject(UserService) private userService: UserService,
+  ) {}
 
   @Post('/login')
   @UseGuards(AuthGuard('local'))
   @HttpCode(200)
   async login(
-    @Response({ passthrough: true }) res: Res,
-    @User() user: UserEntity,
+    @Res({ passthrough: true }) res: Response,
+    @UserObj() user: User,
   ): Promise<LoginResponse> {
     return this.authService.login(user, res);
   }
@@ -32,7 +42,7 @@ export class AuthController {
   @Delete('/logout')
   @UseGuards(JwtAuthGuard)
   async logout(
-    @Response({ passthrough: true }) res: Res,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<LogoutResponse> {
     return this.authService.logout(res);
   }
@@ -40,9 +50,15 @@ export class AuthController {
   @Delete('/logout-all')
   @UseGuards(JwtAuthGuard)
   async logoutAll(
-    @User() user: UserEntity,
-    @Response({ passthrough: true }) res: Res,
+    @UserObj() user: User,
+    @Res({ passthrough: true }) res: Response,
   ): Promise<LogoutAllResponse> {
     return this.authService.logoutAll(user, res);
+  }
+
+  @Get('/user')
+  @UseGuards(JwtAuthGuard)
+  async getAuthUser(@UserObj() user: User): Promise<GetUserFromTokenResponse> {
+    return this.userService.findOne(user.id);
   }
 }

@@ -7,6 +7,10 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
+  NotFoundException,
+  Header,
+  UploadedFile,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -17,7 +21,11 @@ import {
   CreateUserResponse,
   DeleteUserResponse,
   GetUserResponse,
-} from '../../types/user/user-response';
+  UpdateUserResponse,
+} from '../../types';
+import { ReadStream } from 'fs';
+import { Express } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('/api/user')
 export class UserController {
@@ -32,22 +40,32 @@ export class UserController {
 
   @Get('/:userId')
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<GetUserResponse> {
     return this.userService.findOne(id);
   }
 
-  @Patch(':userId')
+  @Delete('/:userId')
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
-  async update(
-    @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
-  ): Promise<GetUserResponse> {
-    return this.userService.update(id, updateUserDto);
+  async remove(@Param('userId') userId: string): Promise<DeleteUserResponse> {
+    return this.userService.remove(userId);
   }
 
-  @Delete(':userId')
+  @Patch('/:userId')
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
-  remove(@Param('userId') userId: string): Promise<DeleteUserResponse> {
-    return this.userService.remove(userId);
+  @UseInterceptors(FileInterceptor('file'))
+  async update(
+    @Param('userId') id: string,
+    @Body() updateUserDto: UpdateUserDto,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<UpdateUserResponse> {
+    console.log(file);
+    return this.userService.update(id, updateUserDto, file);
+  }
+
+  @Get('/photo/:userId')
+  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
+  @Header('Content-Type', 'image/png')
+  async getAvatar(@Param('userId') userId: string): Promise<ReadStream> {
+    return this.userService.getAvatar(userId);
   }
 }

@@ -17,6 +17,12 @@ export class UpdateUserDto extends PartialType(PutUserDto) {
   })
   public lastName: string;
 
+  @IsString({ message: 'bio should be text' })
+  @Length(0, 512, {
+    message: 'bio should contain at least 0 characters and not more than 512',
+  })
+  public bio: string;
+
   @IsString()
   public password: string;
 
@@ -30,4 +36,6 @@ export class UpdateUserDto extends PartialType(PutUserDto) {
       'password should contain at least one uppercase and one lowercase letter and one digit or special character',
   })
   public newPassword: string;
+
+  public avatar: any;
 }

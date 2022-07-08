@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
 import { GlobalExceptionFilter } from './common/filters/global-exception-filter';
+import { StreamErrorHandleInterceptor } from './common/interceptors/stream-error-handle.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,8 +25,9 @@ async function bootstrap() {
       },
     }),
   );
+  app.useGlobalInterceptors(new StreamErrorHandleInterceptor());
   app.useGlobalFilters(new GlobalExceptionFilter());
 
-  await app.listen(3000);
+  await app.listen(3001);
 }
 bootstrap();

@@ -22,6 +22,12 @@ export class PutUserDto {
   })
   public username: string;
 
+  @IsString({ message: 'bio should be text' })
+  @Length(0, 512, {
+    message: 'bio should contain at least 0 characters and not more than 512',
+  })
+  public bio: string;
+
   @IsEmail()
   @Length(3, 255, {
     message: 'email should contain at least 3 characters and not more than 255',
@@ -41,4 +47,6 @@ export class PutUserDto {
       'password should contain at least one uppercase and one lowercase letter and one digit or special character',
   })
   public newPassword: string;
+
+  public avatar: any;
 }
