@@ -21,6 +21,7 @@ import { Express } from 'express';
 import { FileManagement } from '../../common/utils/file-management';
 import { join } from 'path';
 import { createReadStream } from 'fs';
+import { storageDir } from '../../common/utils/storage-dir';
 
 @Injectable()
 export class UserService {
@@ -97,6 +98,12 @@ export class UserService {
     const user = await User.findOne({ where: { id: userId } });
     if (!user) throw new NotFoundException();
 
+    if (user.photoFn) {
+      try {
+        await FileManagement.userFilesRemove(userId);
+      } catch (err) {}
+    }
+
     await user.remove();
 
     return this.filter(user);
@@ -133,10 +140,11 @@ export class UserService {
     if (!userId) throw new BadRequestException();
 
     const user = await User.findOne({ where: { id: userId } });
-    if (!user?.photoFn) throw new NotFoundException();
+    if (user?.photoFn) {
+      const filePath = FileManagement.userAvatarGet(userId, user.photoFn);
+      return createReadStream(filePath);
+    }
 
-    const filePath = FileManagement.userAvatarGet(userId, user.photoFn);
-
-    return createReadStream(filePath);
+    return createReadStream(storageDir('user.png'));
   }
 }

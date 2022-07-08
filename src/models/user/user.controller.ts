@@ -8,7 +8,6 @@ import {
   Delete,
   UseGuards,
   UseInterceptors,
-  NotFoundException,
   Header,
   UploadedFile,
 } from '@nestjs/common';
@@ -40,8 +39,8 @@ export class UserController {
 
   @Get('/:userId')
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
-  async findOne(@Param('id') id: string): Promise<GetUserResponse> {
-    return this.userService.findOne(id);
+  async findOne(@Param('userId') userId: string): Promise<GetUserResponse> {
+    return this.userService.findOne(userId);
   }
 
   @Delete('/:userId')
@@ -58,13 +57,13 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<UpdateUserResponse> {
-    console.log(file);
     return this.userService.update(id, updateUserDto, file);
   }
 
   @Get('/photo/:userId')
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
   @Header('Content-Type', 'image/png')
+  @Header('cross-origin-resource-policy', 'cross-origin')
   async getAvatar(@Param('userId') userId: string): Promise<ReadStream> {
     return this.userService.getAvatar(userId);
   }

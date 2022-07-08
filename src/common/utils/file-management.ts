@@ -4,6 +4,15 @@ import { join } from 'path';
 import { Express } from 'express';
 
 export class FileManagement {
+  static async userFilesRemove(userId: string) {
+    const filePath = FileManagement.getUserDirPath(userId);
+    try {
+      await rm(filePath, { recursive: true });
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   static async userAvatarSave(userId: string, file: Express.Multer.File) {
     await FileManagement.createUserDir(userId);
     const userDir = FileManagement.getUserDirPath(userId);
