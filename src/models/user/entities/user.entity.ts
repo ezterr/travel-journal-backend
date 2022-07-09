@@ -3,9 +3,11 @@ import {
   Column,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserInterface } from '../../../types';
+import { Travel } from '../../travel/entities/travel.entity';
 
 @Entity()
 export class User extends BaseEntity implements UserInterface {
@@ -49,4 +51,7 @@ export class User extends BaseEntity implements UserInterface {
   })
   @Index({ unique: true })
   public jwtId: string;
+
+  @OneToMany((type) => Travel, (travel) => travel.user)
+  public travels: Travel[];
 }

@@ -65,7 +65,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
-  async getAvatar(@Param('id') id: string): Promise<ReadStream> {
-    return this.userService.getAvatar(id);
+  async getPhoto(@Param('id') id: string): Promise<ReadStream> {
+    return this.userService.getPhoto(id);
   }
 }

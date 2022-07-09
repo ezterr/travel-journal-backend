@@ -6,3 +6,7 @@ export interface TravelInterface {
   comradesCount: number;
   photoFn: string;
 }
+
+export type TravelSaveResponseData = Omit<TravelInterface, 'photoFn'> & {
+  photo: string;
+};

@@ -18,7 +18,7 @@ import {
 import { createHashPwd } from '../../common/utils/create-hash-pwd';
 import { UserSaveResponseData } from '../../types';
 import { Express } from 'express';
-import { FileManagement } from '../../common/utils/file-management';
+import { FileManagementUser } from '../../common/utils/file-management-user';
 import { createReadStream } from 'fs';
 import { storageDir } from '../../common/utils/storage-dir';
 
@@ -78,11 +78,9 @@ export class UserService {
     }
 
     if (file) {
-      try {
-        await FileManagement.userAvatarRemove(id, user.photoFn);
-      } catch (err) {}
+      await FileManagementUser.userPhotoRemove(id, user.photoFn);
+      await FileManagementUser.saveUserPhoto(id, file);
 
-      await FileManagement.userAvatarSave(id, file);
       user.photoFn = file.filename;
     }
 
@@ -98,9 +96,7 @@ export class UserService {
     if (!user) throw new NotFoundException();
 
     if (user.photoFn) {
-      try {
-        await FileManagement.userFilesRemove(id);
-      } catch (err) {}
+      await FileManagementUser.removeUserDir(id);
     }
 
     await user.remove();
@@ -132,15 +128,15 @@ export class UserService {
   filter(userEntity: User): UserSaveResponseData {
     const { jwtId, hashPwd, photoFn, ...userResponse } = userEntity;
 
-    return { ...userResponse, avatar: `/api/user/photo/${userResponse.id}` };
+    return { ...userResponse, avatar: `/api/travel/photo/${userResponse.id}` };
   }
 
-  async getAvatar(id: string) {
+  async getPhoto(id: string) {
     if (!id) throw new BadRequestException();
 
     const user = await User.findOne({ where: { id } });
     if (user?.photoFn) {
-      const filePath = FileManagement.userAvatarGet(id, user.photoFn);
+      const filePath = FileManagementUser.userPhotoGet(id, user.photoFn);
       return createReadStream(filePath);
     }
 

@@ -9,6 +9,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  Header,
 } from '@nestjs/common';
 import { TravelService } from './travel.service';
 import { CreateTravelDto } from './dto/create-travel.dto';
@@ -16,6 +17,12 @@ import { UpdateTravelDto } from './dto/update-travel.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import { CreateTravelResponse, GetTravelResponse } from '../../types';
+import { UserObj } from '../../common/decorators/user.decorator';
+import { User } from '../user/entities/user.entity';
+import { TravelOwnerGuard } from '../../common/guards/travel-owner.guard';
+import { ReadStream } from 'fs';
+import { Travel } from './entities/travel.entity';
 
 @Controller('/api/travel')
 export class TravelController {
@@ -24,25 +31,41 @@ export class TravelController {
   @Post('/')
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('photo'))
-  create(
+  async create(
     @Body() createTravelDto: CreateTravelDto,
     @UploadedFile() file: Express.Multer.File,
-  ) {
-    return this.travelService.create(createTravelDto);
+    @UserObj() user: User,
+  ): Promise<CreateTravelResponse> {
+    return this.travelService.create(createTravelDto, user, file);
   }
 
   @Get('/:id')
-  findOne(@Param('/id') id: string) {
-    return this.travelService.findOne(+id);
+  @UseGuards(JwtAuthGuard, TravelOwnerGuard)
+  async findOne(@Param('id') id: string): Promise<GetTravelResponse> {
+    return this.travelService.findOne(id);
   }
 
   @Patch('/:id')
-  update(@Param('id') id: string, @Body() updateTravelDto: UpdateTravelDto) {
-    return this.travelService.update(+id, updateTravelDto);
+  @UseGuards(JwtAuthGuard, TravelOwnerGuard)
+  @UseInterceptors(FileInterceptor('photo'))
+  async update(
+    @Param('id') id: string,
+    @Body() updateTravelDto: UpdateTravelDto,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    return this.travelService.update(id, updateTravelDto, file);
   }
 
   @Delete('/:id')
   remove(@Param('id') id: string) {
     return this.travelService.remove(+id);
+  }
+
+  @Get('/photo/:id')
+  @UseGuards(JwtAuthGuard, TravelOwnerGuard)
+  @Header('Content-Type', 'image/png')
+  @Header('cross-origin-resource-policy', 'cross-origin')
+  async getPhoto(@Param('id') id: string): Promise<ReadStream> {
+    return this.travelService.getPhoto(id);
   }
 }

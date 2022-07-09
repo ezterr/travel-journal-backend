@@ -1,4 +1,9 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  BadRequestException,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { User } from '../../models/user/entities/user.entity';
@@ -14,7 +19,8 @@ export class AccountOwnerGuard implements CanActivate {
     const userId = (request.user as User).id;
     const ownerId = request.params?.[ownerIdParamKey];
 
-    if (!userId || !ownerId) throw new Error('UserId or ownerId is undefined');
+    if (!ownerId) throw new BadRequestException();
+    if (!userId) throw new Error('User is undefined');
 
     return userId === ownerId;
   }

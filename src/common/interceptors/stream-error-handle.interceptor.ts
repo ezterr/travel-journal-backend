@@ -23,7 +23,7 @@ export class StreamErrorHandleInterceptor implements NestInterceptor {
         if (data instanceof ReadStream) {
           data.on('error', (e) => {
             data.destroy();
-            res.json(new NotFoundException().getResponse());
+            res.status(404).json(new NotFoundException().getResponse());
           });
 
           return new StreamableFile(data, { type: '' });

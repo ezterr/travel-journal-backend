@@ -1,5 +1,13 @@
 import { TravelInterface } from 'src/types';
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Column,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  JoinTable,
+} from 'typeorm';
+import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class Travel extends BaseEntity implements TravelInterface {
@@ -20,4 +28,8 @@ export class Travel extends BaseEntity implements TravelInterface {
 
   @Column({ length: 50 })
   public photoFn: string;
+
+  @ManyToOne((type) => User, (user) => user.travels)
+  @JoinTable()
+  public user: User;
 }
