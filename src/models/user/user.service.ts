@@ -95,9 +95,7 @@ export class UserService {
     const user = await User.findOne({ where: { id } });
     if (!user) throw new NotFoundException();
 
-    if (user.photoFn) {
-      await FileManagementUser.removeUserDir(id);
-    }
+    await FileManagementUser.removeUserDir(id);
 
     await user.remove();
 

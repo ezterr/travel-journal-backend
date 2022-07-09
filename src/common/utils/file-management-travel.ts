@@ -5,6 +5,14 @@ import { Express } from 'express';
 import { FileManagement } from './file-management';
 
 export class FileManagementTravel extends FileManagement {
+  static async removeTravelDir(userId: string, travelId: string) {
+    const filePath = this.getTravelDirPath(userId, travelId);
+    try {
+      await rm(filePath, { recursive: true });
+    } catch (e) {
+      console.error(e);
+    }
+  }
   static async saveTravelPhoto(
     userId: string,
     travelId: string,

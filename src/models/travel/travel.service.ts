@@ -7,6 +7,7 @@ import { CreateTravelDto } from './dto/create-travel.dto';
 import { UpdateTravelDto } from './dto/update-travel.dto';
 import {
   CreateTravelResponse,
+  DeleteTravelResponse,
   GetTravelResponse,
   TravelSaveResponseData,
   UpdateTravelResponse,
@@ -23,6 +24,8 @@ export class TravelService {
     user: User,
     file: Express.Multer.File,
   ): Promise<CreateTravelResponse> {
+    if (!user) throw new BadRequestException();
+
     const travel = new Travel();
     travel.title = createTravelDto.title;
     travel.description = createTravelDto.description;
@@ -58,32 +61,26 @@ export class TravelService {
 
   async update(
     id: string,
+    user: User,
     updateTravelDto: UpdateTravelDto,
     file: Express.Multer.File,
   ): Promise<UpdateTravelResponse> {
-    if (!id) throw new BadRequestException();
+    if (!id || !user) throw new BadRequestException();
 
-    const travel = await Travel.findOne({
-      where: { id },
-      relations: ['user'],
-    });
+    const travel = await Travel.findOne({ where: { id } });
     travel.title = updateTravelDto.title ?? travel.title;
     travel.description = updateTravelDto.description ?? travel.description;
     travel.destination = updateTravelDto.destination ?? travel.destination;
     travel.comradesCount =
       updateTravelDto.comradesCount ?? travel.comradesCount;
 
-    if (file && travel.user.id) {
+    if (file && user) {
       await FileManagementTravel.travelPhotoRemove(
-        travel.user.id,
+        user.id,
         travel.id,
         travel.photoFn,
       );
-      await FileManagementTravel.saveTravelPhoto(
-        travel.user.id,
-        travel.id,
-        file,
-      );
+      await FileManagementTravel.saveTravelPhoto(user.id, travel.id, file);
       travel.photoFn = file.filename;
     }
 
@@ -92,21 +89,29 @@ export class TravelService {
     return this.filter(travel);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} travel`;
+  async remove(id: string, user: User): Promise<DeleteTravelResponse> {
+    if (!id || !user) throw new BadRequestException();
+
+    const travel = await Travel.findOne({ where: { id } });
+    if (!travel) throw new NotFoundException();
+
+    await FileManagementTravel.removeTravelDir(user.id, id);
+
+    await travel.remove();
+
+    return this.filter(travel);
   }
 
-  async getPhoto(id: string): Promise<ReadStream> {
-    if (!id) throw new BadRequestException();
+  async getPhoto(id: string, user: User): Promise<ReadStream> {
+    if (!id || !user) throw new BadRequestException();
 
     const travel = await Travel.findOne({
       where: { id },
-      relations: ['user'],
     });
 
-    if (travel?.photoFn && travel?.user.id) {
+    if (travel?.photoFn) {
       const filePath = FileManagementTravel.travelPhotoGet(
-        travel.user.id,
+        user.id,
         travel.id,
         travel.photoFn,
       );
