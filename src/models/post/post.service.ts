@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import {
@@ -11,9 +15,14 @@ import { Travel } from '../travel/entities/travel.entity';
 import { Post } from './entities/post.entity';
 import { FileManagementPost } from '../../common/utils/file-management-post';
 import { User } from '../user/entities/user.entity';
+import { DataSource } from 'typeorm';
+import { FileManagementTravel } from '../../common/utils/file-management-travel';
+import { createReadStream, ReadStream } from 'fs';
 
 @Injectable()
 export class PostService {
+  constructor(private readonly dataSource: DataSource) {}
+
   async create(
     travelId: string,
     user: User,
@@ -23,11 +32,7 @@ export class PostService {
     try {
       if (!travelId) throw new BadRequestException();
 
-      const travel = await Travel.findOne({
-        where: { id: travelId },
-        relations: ['user'],
-      });
-
+      const travel = await Travel.findOne({ where: { id: travelId } });
       if (!travel || !user) throw new BadRequestException();
 
       const post = new Post();
@@ -59,8 +64,13 @@ export class PostService {
     }
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} post`;
+  async findOne(id: string): Promise<GetPostResponse> {
+    if (!id) throw new BadRequestException();
+
+    const post = await Post.findOne({ where: { id } });
+    if (!post) throw new NotFoundException();
+
+    return this.filter(post);
   }
 
   async findAllByTravelId(id: string): Promise<GetPostsResponse> {
@@ -73,12 +83,84 @@ export class PostService {
     return posts.map((e) => this.filter(e));
   }
 
-  update(id: number, updatePostDto: UpdatePostDto) {
-    return `This action updates a #${id} post`;
+  async update(
+    id: string,
+    user: User,
+    updatePostDto: UpdatePostDto,
+    file: Express.Multer.File,
+  ) {
+    try {
+      if (!id) throw new BadRequestException();
+
+      const post = await Post.findOne({
+        where: { id },
+        relations: ['travel'],
+      });
+      if (!post || !post.travel) throw new BadRequestException();
+
+      post.title = updatePostDto.title ?? post.title;
+      post.destination = updatePostDto.destination ?? post.destination;
+      post.description = updatePostDto.description ?? post.description;
+
+      await post.save();
+
+      if (file) {
+        await FileManagementPost.removePostPhoto(
+          user.id,
+          post.travel.id,
+          post.photoFn,
+        );
+        await FileManagementPost.savePostPhoto(user.id, post.travel.id, file);
+        post.photoFn = file.filename;
+      }
+
+      await post.save();
+
+      return this.filter(post);
+    } catch (e) {
+      console.log(file);
+      await FileManagementPost.removeFromTmp(file.filename);
+      throw e;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} post`;
+  async remove(id: string, user: User) {
+    if (!id) throw new BadRequestException();
+
+    const post = await Post.findOne({
+      where: { id },
+      relations: ['travel'],
+    });
+    if (!post || !post?.travel.id) throw new NotFoundException();
+
+    await FileManagementPost.removePostPhoto(
+      user.id,
+      post.travel.id,
+      post.photoFn,
+    );
+    await post.remove();
+
+    return this.filter(post);
+  }
+
+  async getPhoto(id: string, user: User): Promise<ReadStream> {
+    if (!id || !user) throw new BadRequestException();
+
+    const post = await Post.findOne({
+      where: { id },
+      relations: ['travel'],
+    });
+
+    if (post?.photoFn && post?.travel.id) {
+      const filePath = FileManagementPost.getPostPhoto(
+        user.id,
+        post.travel.id,
+        post.photoFn,
+      );
+      return createReadStream(filePath);
+    }
+
+    throw new NotFoundException();
   }
 
   filter(post: Post): PostSaveResponseData {
@@ -86,7 +168,7 @@ export class PostService {
 
     return {
       ...postResponse,
-      photo: `/api/travel/photo/${postResponse.id}`,
+      photo: `/api/post/photo/${postResponse.id}`,
     };
   }
 }

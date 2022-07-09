@@ -16,7 +16,4 @@ export class UpdatePostDto extends PartialType(CreatePostDto) {
   public description: string;
 
   public photo: string;
-
-  @IsDateString()
-  public createdAt: string;
 }
