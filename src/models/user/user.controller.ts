@@ -25,6 +25,7 @@ import {
 import { ReadStream } from 'fs';
 import { Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { SetOwnerIdParamKey } from '../../common/decorators/set-owner-id-param-key';
 
 @Controller('/api/user')
 export class UserController {
@@ -37,34 +38,34 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
-  @Get('/:userId')
+  @Get('/:id')
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
-  async findOne(@Param('userId') userId: string): Promise<GetUserResponse> {
-    return this.userService.findOne(userId);
+  async findOne(@Param('id') id: string): Promise<GetUserResponse> {
+    return this.userService.findOne(id);
   }
 
-  @Delete('/:userId')
+  @Delete('/:id')
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
-  async remove(@Param('userId') userId: string): Promise<DeleteUserResponse> {
-    return this.userService.remove(userId);
+  async remove(@Param('id') id: string): Promise<DeleteUserResponse> {
+    return this.userService.remove(id);
   }
 
-  @Patch('/:userId')
+  @Patch('/:id')
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FileInterceptor('photo'))
   async update(
-    @Param('userId') id: string,
+    @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<UpdateUserResponse> {
     return this.userService.update(id, updateUserDto, file);
   }
 
-  @Get('/photo/:userId')
+  @Get('/photo/:id')
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
-  async getAvatar(@Param('userId') userId: string): Promise<ReadStream> {
-    return this.userService.getAvatar(userId);
+  async getAvatar(@Param('id') id: string): Promise<ReadStream> {
+    return this.userService.getAvatar(id);
   }
 }

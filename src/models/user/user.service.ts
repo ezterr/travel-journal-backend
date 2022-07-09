@@ -19,7 +19,6 @@ import { createHashPwd } from '../../common/utils/create-hash-pwd';
 import { UserSaveResponseData } from '../../types';
 import { Express } from 'express';
 import { FileManagement } from '../../common/utils/file-management';
-import { join } from 'path';
 import { createReadStream } from 'fs';
 import { storageDir } from '../../common/utils/storage-dir';
 
@@ -43,23 +42,23 @@ export class UserService {
     return this.filter(user);
   }
 
-  async findOne(userId: string): Promise<GetUserResponse> {
-    if (!userId) throw new BadRequestException();
+  async findOne(id: string): Promise<GetUserResponse> {
+    if (!id) throw new BadRequestException();
 
-    const user = await User.findOne({ where: { id: userId } });
+    const user = await User.findOne({ where: { id } });
     if (!user) throw new NotFoundException();
 
     return this.filter(user);
   }
 
   async update(
-    userId: string,
+    id: string,
     updateUserDto: UpdateUserDto,
     file: Express.Multer.File,
   ): Promise<UpdateUserResponse> {
-    if (!userId) throw new BadRequestException();
+    if (!id) throw new BadRequestException();
 
-    const user = await User.findOne({ where: { id: userId } });
+    const user = await User.findOne({ where: { id } });
     if (!user) throw new NotFoundException();
     user.firstName = updateUserDto.firstName ?? user.firstName;
     user.lastName = updateUserDto.lastName ?? user.lastName;
@@ -80,10 +79,10 @@ export class UserService {
 
     if (file) {
       try {
-        await FileManagement.userAvatarRemove(userId, user.photoFn);
+        await FileManagement.userAvatarRemove(id, user.photoFn);
       } catch (err) {}
 
-      await FileManagement.userAvatarSave(userId, file);
+      await FileManagement.userAvatarSave(id, file);
       user.photoFn = file.filename;
     }
 
@@ -92,15 +91,15 @@ export class UserService {
     return this.filter(user);
   }
 
-  async remove(userId: string): Promise<DeleteUserResponse> {
-    if (!userId) throw new BadRequestException();
+  async remove(id: string): Promise<DeleteUserResponse> {
+    if (!id) throw new BadRequestException();
 
-    const user = await User.findOne({ where: { id: userId } });
+    const user = await User.findOne({ where: { id } });
     if (!user) throw new NotFoundException();
 
     if (user.photoFn) {
       try {
-        await FileManagement.userFilesRemove(userId);
+        await FileManagement.userFilesRemove(id);
       } catch (err) {}
     }
 
@@ -136,12 +135,12 @@ export class UserService {
     return { ...userResponse, avatar: `/api/user/photo/${userResponse.id}` };
   }
 
-  async getAvatar(userId: string) {
-    if (!userId) throw new BadRequestException();
+  async getAvatar(id: string) {
+    if (!id) throw new BadRequestException();
 
-    const user = await User.findOne({ where: { id: userId } });
+    const user = await User.findOne({ where: { id } });
     if (user?.photoFn) {
-      const filePath = FileManagement.userAvatarGet(userId, user.photoFn);
+      const filePath = FileManagement.userAvatarGet(id, user.photoFn);
       return createReadStream(filePath);
     }
 

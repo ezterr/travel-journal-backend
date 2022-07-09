@@ -48,5 +48,5 @@ export class PutUserDto {
   })
   public newPassword: string;
 
-  public avatar: any;
+  public photo: any;
 }
