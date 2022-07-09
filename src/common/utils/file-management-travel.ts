@@ -23,7 +23,7 @@ export class FileManagementTravel extends FileManagement {
     await this.moveFile(file.path, `${join(travelDir, file.filename)}`);
   }
 
-  static async travelPhotoRemove(
+  static async removeTravelPhoto(
     userId: string,
     travelId: string,
     photoName: string,
@@ -37,7 +37,7 @@ export class FileManagementTravel extends FileManagement {
     }
   }
 
-  static travelPhotoGet(userId: string, travelId: string, photoName: string) {
+  static getTravelPhoto(userId: string, travelId: string, photoName: string) {
     return join(this.getTravelDirPath(userId, travelId), photoName);
   }
 

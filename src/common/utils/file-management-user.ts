@@ -20,7 +20,7 @@ export class FileManagementUser extends FileManagement {
     await this.moveFile(file.path, `${join(userDir, file.filename)}`);
   }
 
-  static async userPhotoRemove(userId: string, photoName: string) {
+  static async removeUserPhoto(userId: string, photoName: string) {
     const filePath = join(this.getUserDirPath(userId), photoName);
     try {
       await rm(filePath);
@@ -29,7 +29,7 @@ export class FileManagementUser extends FileManagement {
     }
   }
 
-  static userPhotoGet(userId: string, photoName: string) {
+  static getUserPhoto(userId: string, photoName: string) {
     return join(this.getUserDirPath(userId), photoName);
   }
 

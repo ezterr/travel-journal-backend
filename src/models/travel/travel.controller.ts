@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Header,
+  Inject,
 } from '@nestjs/common';
 import { TravelService } from './travel.service';
 import { CreateTravelDto } from './dto/create-travel.dto';
@@ -18,8 +19,10 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import {
+  CreatePostResponse,
   CreateTravelResponse,
   DeleteTravelResponse,
+  GetPostsResponse,
   GetTravelResponse,
   UpdateTravelResponse,
 } from '../../types';
@@ -29,10 +32,15 @@ import { TravelOwnerGuard } from '../../common/guards/travel-owner.guard';
 import { ReadStream } from 'fs';
 import { Travel } from './entities/travel.entity';
 import { use } from 'passport';
+import { CreatePostDto } from '../post/dto/create-post.dto';
+import { PostService } from '../post/post.service';
 
 @Controller('/api/travel')
 export class TravelController {
-  constructor(private readonly travelService: TravelService) {}
+  constructor(
+    private readonly travelService: TravelService,
+    private readonly postService: PostService,
+  ) {}
 
   @Post('/')
   @UseGuards(JwtAuthGuard)
@@ -81,5 +89,23 @@ export class TravelController {
     @UserObj() user: User,
   ): Promise<ReadStream> {
     return this.travelService.getPhoto(id, user);
+  }
+
+  @Post('/:id/post')
+  @UseGuards(JwtAuthGuard, TravelOwnerGuard)
+  @UseInterceptors(FileInterceptor('photo'))
+  async createPost(
+    @Body() createPostDto: CreatePostDto,
+    @Param('id') id: string,
+    @UserObj() user: User,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<CreatePostResponse> {
+    return this.postService.create(id, user, createPostDto, file);
+  }
+
+  @Get('/:id/post')
+  @UseGuards(JwtAuthGuard, TravelOwnerGuard)
+  async findAllPosts(@Param('id') id: string): Promise<GetPostsResponse> {
+    return this.postService.findAllByTravelId(id);
   }
 }

@@ -6,8 +6,10 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   JoinTable,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../../user/entities/user.entity';
+import { Post } from '../../post/entities/post.entity';
 
 @Entity()
 export class Travel extends BaseEntity implements TravelInterface {
@@ -30,12 +32,15 @@ export class Travel extends BaseEntity implements TravelInterface {
   public photoFn: string;
 
   @Column({ type: 'date' })
-  public travelStartAt: Date;
+  public travelStartAt: string;
 
   @Column({ type: 'date' })
-  public travelEndAt: Date;
+  public travelEndAt: string;
 
   @ManyToOne((type) => User, (user) => user.travels)
   @JoinTable()
   public user: User;
+
+  @OneToMany((type) => Post, (post) => post.travel)
+  public posts: Post[];
 }

@@ -47,7 +47,7 @@ export class UserService {
 
       if (file) {
         if (user.photoFn) {
-          await FileManagementUser.userPhotoRemove(user.id, user.photoFn);
+          await FileManagementUser.removeUserPhoto(user.id, user.photoFn);
         }
         await FileManagementUser.saveUserPhoto(user.id, file);
 
@@ -82,6 +82,7 @@ export class UserService {
 
       const user = await User.findOne({ where: { id } });
       if (!user) throw new NotFoundException();
+
       user.firstName = updateUserDto.firstName ?? user.firstName;
       user.lastName = updateUserDto.lastName ?? user.lastName;
       user.bio = updateUserDto.bio ?? user.bio;
@@ -100,7 +101,7 @@ export class UserService {
       }
 
       if (file) {
-        await FileManagementUser.userPhotoRemove(id, user.photoFn);
+        await FileManagementUser.removeUserPhoto(id, user.photoFn);
         await FileManagementUser.saveUserPhoto(id, file);
 
         user.photoFn = file.filename;
@@ -131,8 +132,9 @@ export class UserService {
     if (!id) throw new BadRequestException();
 
     const user = await User.findOne({ where: { id } });
+
     if (user?.photoFn) {
-      const filePath = FileManagementUser.userPhotoGet(id, user.photoFn);
+      const filePath = FileManagementUser.getUserPhoto(id, user.photoFn);
       return createReadStream(filePath);
     }
 

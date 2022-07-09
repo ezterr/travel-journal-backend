@@ -29,10 +29,10 @@ export class UpdateTravelDto extends PartialType(CreateTravelDto) {
   public comradesCount: number;
 
   @IsDateString()
-  public travelStartAt;
+  public travelStartAt: string;
 
   @IsDateString()
-  public travelEndAt;
+  public travelEndAt: string;
 
   public photo: any;
 }

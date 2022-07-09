@@ -27,26 +27,28 @@ export class TravelService {
   ): Promise<CreateTravelResponse> {
     try {
       if (!user) throw new BadRequestException();
-      if (
-        new Date(createTravelDto.travelStartAt).getTime() >
-        new Date(createTravelDto.travelEndAt).getTime()
-      ) {
-        throw new BadRequestException();
-      }
 
       const travel = new Travel();
       travel.title = createTravelDto.title;
       travel.description = createTravelDto.description;
       travel.destination = createTravelDto.destination;
       travel.comradesCount = createTravelDto.comradesCount;
-      travel.travelStartAt = createTravelDto.travelStartAt;
-      travel.travelEndAt = createTravelDto.travelEndAt;
-      await travel.save();
+      travel.travelStartAt =
+        createTravelDto.travelStartAt ?? travel.travelStartAt;
+      travel.travelEndAt = createTravelDto.travelEndAt ?? travel.travelEndAt;
 
+      if (
+        new Date(travel.travelStartAt).getTime() >
+        new Date(travel.travelEndAt).getTime()
+      ) {
+        throw new BadRequestException();
+      }
+
+      await travel.save();
       travel.user = user;
 
       if (file) {
-        await FileManagementTravel.travelPhotoRemove(
+        await FileManagementTravel.removeTravelPhoto(
           user.id,
           travel.id,
           file.filename,
@@ -83,14 +85,26 @@ export class TravelService {
       if (!id || !user) throw new BadRequestException();
 
       const travel = await Travel.findOne({ where: { id } });
+      if (!travel) throw new NotFoundException();
+
       travel.title = updateTravelDto.title ?? travel.title;
       travel.description = updateTravelDto.description ?? travel.description;
       travel.destination = updateTravelDto.destination ?? travel.destination;
       travel.comradesCount =
         updateTravelDto.comradesCount ?? travel.comradesCount;
+      travel.travelStartAt =
+        updateTravelDto.travelStartAt ?? travel.travelStartAt;
+      travel.travelEndAt = updateTravelDto.travelEndAt ?? travel.travelEndAt;
 
-      if (file && user) {
-        await FileManagementTravel.travelPhotoRemove(
+      if (
+        new Date(travel.travelStartAt).getTime() >
+        new Date(travel.travelEndAt).getTime()
+      ) {
+        throw new BadRequestException();
+      }
+
+      if (file) {
+        await FileManagementTravel.removeTravelPhoto(
           user.id,
           travel.id,
           travel.photoFn,
@@ -128,7 +142,7 @@ export class TravelService {
     });
 
     if (travel?.photoFn) {
-      const filePath = FileManagementTravel.travelPhotoGet(
+      const filePath = FileManagementTravel.getTravelPhoto(
         user.id,
         travel.id,
         travel.photoFn,
