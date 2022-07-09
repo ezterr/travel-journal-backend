@@ -16,6 +16,7 @@ import { Travel } from './entities/travel.entity';
 import { User } from '../user/entities/user.entity';
 import { FileManagementTravel } from '../../common/utils/file-management-travel';
 import { createReadStream, ReadStream } from 'fs';
+import { FileManagementUser } from '../../common/utils/file-management-user';
 
 @Injectable()
 export class TravelService {
@@ -24,30 +25,43 @@ export class TravelService {
     user: User,
     file: Express.Multer.File,
   ): Promise<CreateTravelResponse> {
-    if (!user) throw new BadRequestException();
+    try {
+      if (!user) throw new BadRequestException();
+      if (
+        new Date(createTravelDto.travelStartAt).getTime() >
+        new Date(createTravelDto.travelEndAt).getTime()
+      ) {
+        throw new BadRequestException();
+      }
 
-    const travel = new Travel();
-    travel.title = createTravelDto.title;
-    travel.description = createTravelDto.description;
-    travel.destination = createTravelDto.destination;
-    travel.comradesCount = createTravelDto.comradesCount;
-    await travel.save();
+      const travel = new Travel();
+      travel.title = createTravelDto.title;
+      travel.description = createTravelDto.description;
+      travel.destination = createTravelDto.destination;
+      travel.comradesCount = createTravelDto.comradesCount;
+      travel.travelStartAt = createTravelDto.travelStartAt;
+      travel.travelEndAt = createTravelDto.travelEndAt;
+      await travel.save();
 
-    travel.user = user;
+      travel.user = user;
 
-    if (file) {
-      await FileManagementTravel.travelPhotoRemove(
-        user.id,
-        travel.id,
-        file.filename,
-      );
-      await FileManagementTravel.saveTravelPhoto(user.id, travel.id, file);
-      travel.photoFn = file.filename;
+      if (file) {
+        await FileManagementTravel.travelPhotoRemove(
+          user.id,
+          travel.id,
+          file.filename,
+        );
+        await FileManagementTravel.saveTravelPhoto(user.id, travel.id, file);
+        travel.photoFn = file.filename;
+      }
+
+      await travel.save();
+
+      return this.filter(travel);
+    } catch (e) {
+      await FileManagementUser.removeFromTmp(file.filename);
+      throw e;
     }
-
-    await travel.save();
-
-    return this.filter(travel);
   }
 
   async findOne(id: string): Promise<GetTravelResponse> {
@@ -65,28 +79,33 @@ export class TravelService {
     updateTravelDto: UpdateTravelDto,
     file: Express.Multer.File,
   ): Promise<UpdateTravelResponse> {
-    if (!id || !user) throw new BadRequestException();
+    try {
+      if (!id || !user) throw new BadRequestException();
 
-    const travel = await Travel.findOne({ where: { id } });
-    travel.title = updateTravelDto.title ?? travel.title;
-    travel.description = updateTravelDto.description ?? travel.description;
-    travel.destination = updateTravelDto.destination ?? travel.destination;
-    travel.comradesCount =
-      updateTravelDto.comradesCount ?? travel.comradesCount;
+      const travel = await Travel.findOne({ where: { id } });
+      travel.title = updateTravelDto.title ?? travel.title;
+      travel.description = updateTravelDto.description ?? travel.description;
+      travel.destination = updateTravelDto.destination ?? travel.destination;
+      travel.comradesCount =
+        updateTravelDto.comradesCount ?? travel.comradesCount;
 
-    if (file && user) {
-      await FileManagementTravel.travelPhotoRemove(
-        user.id,
-        travel.id,
-        travel.photoFn,
-      );
-      await FileManagementTravel.saveTravelPhoto(user.id, travel.id, file);
-      travel.photoFn = file.filename;
+      if (file && user) {
+        await FileManagementTravel.travelPhotoRemove(
+          user.id,
+          travel.id,
+          travel.photoFn,
+        );
+        await FileManagementTravel.saveTravelPhoto(user.id, travel.id, file);
+        travel.photoFn = file.filename;
+      }
+
+      await travel.save();
+
+      return this.filter(travel);
+    } catch (e) {
+      await FileManagementUser.removeFromTmp(file.filename);
+      throw e;
     }
-
-    await travel.save();
-
-    return this.filter(travel);
   }
 
   async remove(id: string, user: User): Promise<DeleteTravelResponse> {
@@ -96,7 +115,6 @@ export class TravelService {
     if (!travel) throw new NotFoundException();
 
     await FileManagementTravel.removeTravelDir(user.id, id);
-
     await travel.remove();
 
     return this.filter(travel);
@@ -124,6 +142,9 @@ export class TravelService {
   filter(travel: Travel): TravelSaveResponseData {
     const { photoFn, user, ...travelResponse } = travel;
 
-    return { ...travelResponse, photo: `/api/user/photo/${travelResponse.id}` };
+    return {
+      ...travelResponse,
+      photo: `/api/travel/photo/${travelResponse.id}`,
+    };
   }
 }

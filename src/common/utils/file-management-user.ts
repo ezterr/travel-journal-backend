@@ -1,7 +1,6 @@
 import { mkdir, rm } from 'fs/promises';
 import { Express } from 'express';
 import { join } from 'path';
-import { storageDir } from './storage-dir';
 import { FileManagement } from './file-management';
 
 export class FileManagementUser extends FileManagement {
@@ -21,8 +20,8 @@ export class FileManagementUser extends FileManagement {
     await this.moveFile(file.path, `${join(userDir, file.filename)}`);
   }
 
-  static async userPhotoRemove(userId: string, avatarName: string) {
-    const filePath = join(this.getUserDirPath(userId), avatarName);
+  static async userPhotoRemove(userId: string, photoName: string) {
+    const filePath = join(this.getUserDirPath(userId), photoName);
     try {
       await rm(filePath);
     } catch (e) {
@@ -36,13 +35,13 @@ export class FileManagementUser extends FileManagement {
 
   static getUserDirPath(userId: string) {
     const target = join('/user', userId);
-    return storageDir(target);
+    return this.storageDir(target);
   }
 
   static async createUserDir(userId: string) {
     try {
       const target = join('/user', userId);
-      const userDir = storageDir(target);
+      const userDir = this.storageDir(target);
       await mkdir(userDir, { recursive: true });
     } catch (e) {
       console.error(e);

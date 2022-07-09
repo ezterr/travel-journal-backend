@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { MulterModule } from '@nestjs/platform-express';
-import { storageDir } from '../../common/utils/storage-dir';
 import { multerStorage } from '../../common/utils/multer-storage';
+import { FileManagement } from '../../common/utils/file-management';
 
 @Module({
   imports: [
     MulterModule.register({
-      storage: multerStorage(storageDir('tmp')),
+      storage: multerStorage(FileManagement.storageDir('tmp')),
     }),
   ],
   controllers: [UserController],

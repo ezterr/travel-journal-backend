@@ -3,12 +3,12 @@ import { TravelService } from './travel.service';
 import { TravelController } from './travel.controller';
 import { MulterModule } from '@nestjs/platform-express';
 import { multerStorage } from '../../common/utils/multer-storage';
-import { storageDir } from '../../common/utils/storage-dir';
+import { FileManagement } from '../../common/utils/file-management';
 
 @Module({
   imports: [
     MulterModule.register({
-      storage: multerStorage(storageDir('tmp')),
+      storage: multerStorage(FileManagement.storageDir('tmp')),
     }),
   ],
   controllers: [TravelController],

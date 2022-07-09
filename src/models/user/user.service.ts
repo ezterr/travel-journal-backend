@@ -20,26 +20,47 @@ import { UserSaveResponseData } from '../../types';
 import { Express } from 'express';
 import { FileManagementUser } from '../../common/utils/file-management-user';
 import { createReadStream } from 'fs';
-import { storageDir } from '../../common/utils/storage-dir';
+import { FileManagement } from '../../common/utils/file-management';
 
 @Injectable()
 export class UserService {
-  async create(createUserDto: CreateUserDto): Promise<CreateUserResponse> {
-    await this.checkUserFieldUniquenessAndThrow({ email: createUserDto.email });
-    await this.checkUserFieldUniquenessAndThrow({
-      username: createUserDto.username,
-    });
+  async create(
+    createUserDto: CreateUserDto,
+    file: Express.Multer.File,
+  ): Promise<CreateUserResponse> {
+    try {
+      await this.checkUserFieldUniquenessAndThrow({
+        email: createUserDto.email,
+      });
+      await this.checkUserFieldUniquenessAndThrow({
+        username: createUserDto.username,
+      });
 
-    const user = new User();
-    user.firstName = createUserDto.firstName;
-    user.lastName = createUserDto.lastName;
-    user.username = createUserDto.username;
-    user.email = createUserDto.email;
-    user.hashPwd = await createHashPwd(createUserDto.password);
+      const user = new User();
+      user.firstName = createUserDto.firstName;
+      user.lastName = createUserDto.lastName;
+      user.username = createUserDto.username;
+      user.email = createUserDto.email;
+      user.hashPwd = await createHashPwd(createUserDto.password);
 
-    await user.save();
+      await user.save();
 
-    return this.filter(user);
+      if (file) {
+        if (user.photoFn) {
+          await FileManagementUser.userPhotoRemove(user.id, user.photoFn);
+        }
+        await FileManagementUser.saveUserPhoto(user.id, file);
+
+        user.photoFn = file.filename;
+      }
+
+      await user.save();
+
+      return this.filter(user);
+    } catch (e) {
+      await FileManagementUser.removeFromTmp(file.filename);
+      throw e;
+    }
   }
 
   async findOne(id: string): Promise<GetUserResponse> {
@@ -56,37 +77,42 @@ export class UserService {
     updateUserDto: UpdateUserDto,
     file: Express.Multer.File,
   ): Promise<UpdateUserResponse> {
-    if (!id) throw new BadRequestException();
+    try {
+      if (!id) throw new BadRequestException();
 
-    const user = await User.findOne({ where: { id } });
-    if (!user) throw new NotFoundException();
-    user.firstName = updateUserDto.firstName ?? user.firstName;
-    user.lastName = updateUserDto.lastName ?? user.lastName;
-    user.bio = updateUserDto.bio ?? user.bio;
+      const user = await User.findOne({ where: { id } });
+      if (!user) throw new NotFoundException();
+      user.firstName = updateUserDto.firstName ?? user.firstName;
+      user.lastName = updateUserDto.lastName ?? user.lastName;
+      user.bio = updateUserDto.bio ?? user.bio;
 
-    if (updateUserDto.newPassword) {
-      if (updateUserDto.password) {
-        const hashCompareResult = await compare(
-          updateUserDto.password,
-          user.hashPwd,
-        );
+      if (updateUserDto.newPassword) {
+        if (updateUserDto.password) {
+          const hashCompareResult = await compare(
+            updateUserDto.password,
+            user.hashPwd,
+          );
 
-        if (hashCompareResult) {
-          user.hashPwd = await createHashPwd(updateUserDto.newPassword);
+          if (hashCompareResult) {
+            user.hashPwd = await createHashPwd(updateUserDto.newPassword);
+          } else throw new UnauthorizedException();
         } else throw new UnauthorizedException();
-      } else throw new UnauthorizedException();
+      }
+
+      if (file) {
+        await FileManagementUser.userPhotoRemove(id, user.photoFn);
+        await FileManagementUser.saveUserPhoto(id, file);
+
+        user.photoFn = file.filename;
+      }
+
+      await user.save();
+
+      return this.filter(user);
+    } catch (e) {
+      await FileManagementUser.removeFromTmp(file.filename);
+      throw e;
     }
-
-    if (file) {
-      await FileManagementUser.userPhotoRemove(id, user.photoFn);
-      await FileManagementUser.saveUserPhoto(id, file);
-
-      user.photoFn = file.filename;
-    }
-
-    await user.save();
-
-    return this.filter(user);
   }
 
   async remove(id: string): Promise<DeleteUserResponse> {
@@ -96,10 +122,21 @@ export class UserService {
     if (!user) throw new NotFoundException();
 
     await FileManagementUser.removeUserDir(id);
-
     await user.remove();
 
     return this.filter(user);
+  }
+
+  async getPhoto(id: string) {
+    if (!id) throw new BadRequestException();
+
+    const user = await User.findOne({ where: { id } });
+    if (user?.photoFn) {
+      const filePath = FileManagementUser.userPhotoGet(id, user.photoFn);
+      return createReadStream(filePath);
+    }
+
+    return createReadStream(FileManagement.storageDir('user.png'));
   }
 
   async checkUserFieldUniquenessAndThrow(value: {
@@ -126,18 +163,6 @@ export class UserService {
   filter(userEntity: User): UserSaveResponseData {
     const { jwtId, hashPwd, photoFn, ...userResponse } = userEntity;
 
-    return { ...userResponse, avatar: `/api/travel/photo/${userResponse.id}` };
-  }
-
-  async getPhoto(id: string) {
-    if (!id) throw new BadRequestException();
-
-    const user = await User.findOne({ where: { id } });
-    if (user?.photoFn) {
-      const filePath = FileManagementUser.userPhotoGet(id, user.photoFn);
-      return createReadStream(filePath);
-    }
-
-    return createReadStream(storageDir('user.png'));
+    return { ...userResponse, avatar: `/api/user/photo/${userResponse.id}` };
   }
 }

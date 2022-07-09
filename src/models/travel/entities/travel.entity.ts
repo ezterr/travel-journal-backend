@@ -29,6 +29,12 @@ export class Travel extends BaseEntity implements TravelInterface {
   @Column({ length: 50 })
   public photoFn: string;
 
+  @Column({ type: 'date' })
+  public travelStartAt: Date;
+
+  @Column({ type: 'date' })
+  public travelEndAt: Date;
+
   @ManyToOne((type) => User, (user) => user.travels)
   @JoinTable()
   public user: User;

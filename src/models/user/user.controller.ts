@@ -32,10 +32,12 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('/')
+  @UseInterceptors(FileInterceptor('photo'))
   async create(
     @Body() createUserDto: CreateUserDto,
+    @UploadedFile() file: Express.Multer.File,
   ): Promise<CreateUserResponse> {
-    return this.userService.create(createUserDto);
+    return this.userService.create(createUserDto, file);
   }
 
   @Get('/:id')

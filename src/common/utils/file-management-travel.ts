@@ -1,5 +1,4 @@
 import { mkdir, rm } from 'fs/promises';
-import { storageDir } from './storage-dir';
 import { join } from 'path';
 import { Express } from 'express';
 import { FileManagement } from './file-management';
@@ -44,13 +43,13 @@ export class FileManagementTravel extends FileManagement {
 
   static getTravelDirPath(userId: string, travelId: string) {
     const target = join('/user', userId, travelId);
-    return storageDir(target);
+    return this.storageDir(target);
   }
 
   static async createTravelDir(userId: string, travelId: string) {
     try {
       const target = join('/user', userId, travelId);
-      const userDir = storageDir(target);
+      const userDir = this.storageDir(target);
       await mkdir(userDir, { recursive: true });
     } catch (e) {
       console.error(e);
