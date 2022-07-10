@@ -24,17 +24,18 @@ import { ReadStream } from 'fs';
 import { PostOwnerGuard } from '../../common/guards/post-owner.guard';
 
 @Controller('/api/post')
+@UseGuards(JwtAuthGuard)
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Get('/:id')
-  @UseGuards(JwtAuthGuard, PostOwnerGuard)
+  @UseGuards(PostOwnerGuard)
   findOne(@Param('id') id: string) {
     return this.postService.findOne(id);
   }
 
   @Patch(':id')
-  @UseGuards(JwtAuthGuard, PostOwnerGuard)
+  @UseGuards(PostOwnerGuard)
   @UseInterceptors(FileInterceptor('photo'))
   update(
     @Param('id') id: string,
@@ -46,13 +47,13 @@ export class PostController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, PostOwnerGuard)
+  @UseGuards(PostOwnerGuard)
   remove(@Param('id') id: string, @UserObj() user: User) {
     return this.postService.remove(id, user);
   }
 
   @Get('/photo/:id')
-  @UseGuards(JwtAuthGuard, PostOwnerGuard)
+  @UseGuards(PostOwnerGuard)
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(

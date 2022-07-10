@@ -36,6 +36,7 @@ import { CreatePostDto } from '../post/dto/create-post.dto';
 import { PostService } from '../post/post.service';
 
 @Controller('/api/travel')
+@UseGuards(JwtAuthGuard)
 export class TravelController {
   constructor(
     private readonly travelService: TravelService,
@@ -43,13 +44,13 @@ export class TravelController {
   ) {}
 
   @Get('/:id')
-  @UseGuards(JwtAuthGuard, TravelOwnerGuard)
+  @UseGuards(TravelOwnerGuard)
   async findOne(@Param('id') id: string): Promise<GetTravelResponse> {
     return this.travelService.findOne(id);
   }
 
   @Patch('/:id')
-  @UseGuards(JwtAuthGuard, TravelOwnerGuard)
+  @UseGuards(TravelOwnerGuard)
   @UseInterceptors(FileInterceptor('photo'))
   async update(
     @Param('id') id: string,
@@ -61,7 +62,7 @@ export class TravelController {
   }
 
   @Delete('/:id')
-  @UseGuards(JwtAuthGuard, TravelOwnerGuard)
+  @UseGuards(TravelOwnerGuard)
   async remove(
     @Param('id') id: string,
     @UserObj() user: User,
@@ -70,7 +71,7 @@ export class TravelController {
   }
 
   @Get('/photo/:id')
-  @UseGuards(JwtAuthGuard, TravelOwnerGuard)
+  @UseGuards(TravelOwnerGuard)
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(
@@ -81,7 +82,7 @@ export class TravelController {
   }
 
   @Post('/:id/post')
-  @UseGuards(JwtAuthGuard, TravelOwnerGuard)
+  @UseGuards(TravelOwnerGuard)
   @UseInterceptors(FileInterceptor('photo'))
   async createPost(
     @Body() createPostDto: CreatePostDto,
@@ -93,7 +94,7 @@ export class TravelController {
   }
   //@TODO zamienić user na userId
   @Get('/:id/post')
-  @UseGuards(JwtAuthGuard, TravelOwnerGuard)
+  @UseGuards(TravelOwnerGuard)
   async findAllPosts(@Param('id') id: string): Promise<GetPostsResponse> {
     return this.postService.findAllByTravelId(id);
   }

@@ -18,6 +18,7 @@ import { User } from '../user/entities/user.entity';
 import { FileManagementTravel } from '../../common/utils/file-management-travel';
 import { createReadStream, ReadStream } from 'fs';
 import { FileManagementUser } from '../../common/utils/file-management-user';
+import { FileManagement } from '../../common/utils/file-management';
 
 @Injectable()
 export class TravelService {
@@ -169,6 +170,7 @@ export class TravelService {
       return createReadStream(filePath);
     }
 
+    return createReadStream(FileManagement.storageDir('no-image.png'));
     throw new NotFoundException();
   }
 
