@@ -15,5 +15,6 @@ import { PostModule } from '../post/post.module';
   ],
   controllers: [TravelController],
   providers: [TravelService],
+  exports: [TravelService],
 })
 export class TravelModule {}

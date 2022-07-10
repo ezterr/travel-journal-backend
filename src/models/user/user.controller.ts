@@ -19,6 +19,7 @@ import { AccountOwnerGuard } from '../../common/guards/account-owner.guard';
 import {
   CreateUserResponse,
   DeleteUserResponse,
+  GetTravelsResponse,
   GetUserResponse,
   UpdateUserResponse,
 } from '../../types';
@@ -26,10 +27,14 @@ import { ReadStream } from 'fs';
 import { Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SetOwnerIdParamKey } from '../../common/decorators/set-owner-id-param-key';
+import { TravelService } from '../travel/travel.service';
 
 @Controller('/api/user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly travelService: TravelService,
+  ) {}
 
   @Post('/')
   @UseInterceptors(FileInterceptor('photo'))
@@ -44,6 +49,11 @@ export class UserController {
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
   async findOne(@Param('id') id: string): Promise<GetUserResponse> {
     return this.userService.findOne(id);
+  }
+
+  @Get('/:id/travel')
+  async findAllTravel(@Param('id') id: string): Promise<GetTravelsResponse> {
+    return this.travelService.findAllByUserId(id);
   }
 
   @Delete('/:id')

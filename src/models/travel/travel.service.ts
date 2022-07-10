@@ -9,6 +9,7 @@ import {
   CreateTravelResponse,
   DeleteTravelResponse,
   GetTravelResponse,
+  GetTravelsResponse,
   TravelSaveResponseData,
   UpdateTravelResponse,
 } from '../../types';
@@ -73,6 +74,16 @@ export class TravelService {
     if (!travel) throw new NotFoundException();
 
     return this.filter(travel);
+  }
+
+  async findAllByUserId(id: string): Promise<GetTravelsResponse> {
+    if (!id) throw new BadRequestException();
+
+    const travel = await Travel.find({
+      where: { user: { id } },
+    });
+
+    return travel.map((e) => this.filter(e));
   }
 
   async update(
