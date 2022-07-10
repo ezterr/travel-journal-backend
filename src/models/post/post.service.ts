@@ -60,7 +60,7 @@ export class PostService {
 
       return this.filter(post);
     } catch (e) {
-      await FileManagementPost.removeFromTmp(file.filename);
+      if (file) await FileManagementPost.removeFromTmp(file.filename);
       throw e;
     }
   }
@@ -122,7 +122,7 @@ export class PostService {
       return this.filter(post);
     } catch (e) {
       console.log(file);
-      await FileManagementPost.removeFromTmp(file.filename);
+      if (file) await FileManagementPost.removeFromTmp(file.filename);
       throw e;
     }
   }

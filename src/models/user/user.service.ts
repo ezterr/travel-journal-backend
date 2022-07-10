@@ -58,7 +58,7 @@ export class UserService {
 
       return this.filter(user);
     } catch (e) {
-      await FileManagementUser.removeFromTmp(file.filename);
+      if (file) await FileManagementUser.removeFromTmp(file.filename);
       throw e;
     }
   }
@@ -113,7 +113,7 @@ export class UserService {
 
       return this.filter(user);
     } catch (e) {
-      await FileManagementUser.removeFromTmp(file.filename);
+      if (file) await FileManagementUser.removeFromTmp(file.filename);
       throw e;
     }
   }

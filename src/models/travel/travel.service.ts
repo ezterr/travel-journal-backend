@@ -67,7 +67,7 @@ export class TravelService {
 
       return this.filter(travel);
     } catch (e) {
-      await FileManagementUser.removeFromTmp(file.filename);
+      if (file) await FileManagementUser.removeFromTmp(file.filename);
       throw e;
     }
   }
@@ -86,6 +86,7 @@ export class TravelService {
 
     const travel = await Travel.find({
       where: { user: { id } },
+      order: { travelStartAt: 'DESC' },
     });
 
     return travel.map((e) => this.filter(e));
@@ -135,7 +136,7 @@ export class TravelService {
 
       return this.filter(travel);
     } catch (e) {
-      await FileManagementUser.removeFromTmp(file.filename);
+      if (file) await FileManagementUser.removeFromTmp(file.filename);
       throw e;
     }
   }

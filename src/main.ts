@@ -17,7 +17,7 @@ async function bootstrap() {
   app.use(helmet());
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: false,
+      whitelist: true,
       forbidNonWhitelisted: false,
       transform: true,
       transformOptions: {
