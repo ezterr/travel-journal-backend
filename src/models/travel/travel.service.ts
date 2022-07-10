@@ -23,10 +23,13 @@ import { FileManagementUser } from '../../common/utils/file-management-user';
 export class TravelService {
   async create(
     createTravelDto: CreateTravelDto,
-    user: User,
+    userId: string,
     file: Express.Multer.File,
   ): Promise<CreateTravelResponse> {
     try {
+      if (!userId) throw new BadRequestException();
+
+      const user = await User.findOne({ where: { id: userId } });
       if (!user) throw new BadRequestException();
 
       const travel = new Travel();

@@ -42,17 +42,6 @@ export class TravelController {
     private readonly postService: PostService,
   ) {}
 
-  @Post('/')
-  @UseGuards(JwtAuthGuard)
-  @UseInterceptors(FileInterceptor('photo'))
-  async create(
-    @Body() createTravelDto: CreateTravelDto,
-    @UploadedFile() file: Express.Multer.File,
-    @UserObj() user: User,
-  ): Promise<CreateTravelResponse> {
-    return this.travelService.create(createTravelDto, user, file);
-  }
-
   @Get('/:id')
   @UseGuards(JwtAuthGuard, TravelOwnerGuard)
   async findOne(@Param('id') id: string): Promise<GetTravelResponse> {
@@ -102,7 +91,7 @@ export class TravelController {
   ): Promise<CreatePostResponse> {
     return this.postService.create(id, user, createPostDto, file);
   }
-
+  //@TODO zamienić user na userId
   @Get('/:id/post')
   @UseGuards(JwtAuthGuard, TravelOwnerGuard)
   async findAllPosts(@Param('id') id: string): Promise<GetPostsResponse> {

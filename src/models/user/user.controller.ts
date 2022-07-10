@@ -17,6 +17,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { AccountOwnerGuard } from '../../common/guards/account-owner.guard';
 import {
+  CreateTravelResponse,
   CreateUserResponse,
   DeleteUserResponse,
   GetTravelsResponse,
@@ -28,6 +29,7 @@ import { Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { SetOwnerIdParamKey } from '../../common/decorators/set-owner-id-param-key';
 import { TravelService } from '../travel/travel.service';
+import { CreateTravelDto } from '../travel/dto/create-travel.dto';
 
 @Controller('/api/user')
 export class UserController {
@@ -49,11 +51,6 @@ export class UserController {
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
   async findOne(@Param('id') id: string): Promise<GetUserResponse> {
     return this.userService.findOne(id);
-  }
-
-  @Get('/:id/travel')
-  async findAllTravel(@Param('id') id: string): Promise<GetTravelsResponse> {
-    return this.travelService.findAllByUserId(id);
   }
 
   @Delete('/:id')
@@ -79,5 +76,22 @@ export class UserController {
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(@Param('id') id: string): Promise<ReadStream> {
     return this.userService.getPhoto(id);
+  }
+
+  @Get('/:id/travel')
+  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
+  async findAllTravel(@Param('id') id: string): Promise<GetTravelsResponse> {
+    return this.travelService.findAllByUserId(id);
+  }
+
+  @Post('/:id/travel')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('photo'))
+  async createTravel(
+    @Body() createTravelDto: CreateTravelDto,
+    @UploadedFile() file: Express.Multer.File,
+    @Param('id') id: string,
+  ): Promise<CreateTravelResponse> {
+    return this.travelService.create(createTravelDto, id, file);
   }
 }
