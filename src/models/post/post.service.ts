@@ -16,7 +16,6 @@ import { Post } from './entities/post.entity';
 import { FileManagementPost } from '../../common/utils/file-management-post';
 import { User } from '../user/entities/user.entity';
 import { DataSource } from 'typeorm';
-import { FileManagementTravel } from '../../common/utils/file-management-travel';
 import { createReadStream, ReadStream } from 'fs';
 
 @Injectable()
@@ -46,11 +45,13 @@ export class PostService {
       post.travel = travel;
 
       if (file) {
-        await FileManagementPost.removePostPhoto(
-          user.id,
-          travel.id,
-          file.filename,
-        );
+        if (post.photoFn) {
+          await FileManagementPost.removePostPhoto(
+            user.id,
+            travel.id,
+            post.photoFn,
+          );
+        }
         await FileManagementPost.savePostPhoto(user.id, travel.id, file);
         post.photoFn = file.filename;
       }
@@ -105,11 +106,13 @@ export class PostService {
       await post.save();
 
       if (file) {
-        await FileManagementPost.removePostPhoto(
-          user.id,
-          post.travel.id,
-          post.photoFn,
-        );
+        if (post.photoFn) {
+          await FileManagementPost.removePostPhoto(
+            user.id,
+            post.travel.id,
+            post.photoFn,
+          );
+        }
         await FileManagementPost.savePostPhoto(user.id, post.travel.id, file);
         post.photoFn = file.filename;
       }

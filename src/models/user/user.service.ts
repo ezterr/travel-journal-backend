@@ -101,7 +101,9 @@ export class UserService {
       }
 
       if (file) {
-        await FileManagementUser.removeUserPhoto(id, user.photoFn);
+        if (user.photoFn) {
+          await FileManagementUser.removeUserPhoto(user.id, user.photoFn);
+        }
         await FileManagementUser.saveUserPhoto(id, file);
 
         user.photoFn = file.filename;

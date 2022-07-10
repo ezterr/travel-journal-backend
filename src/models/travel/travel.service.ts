@@ -52,11 +52,13 @@ export class TravelService {
       travel.user = user;
 
       if (file) {
-        await FileManagementTravel.removeTravelPhoto(
-          user.id,
-          travel.id,
-          file.filename,
-        );
+        if (travel.photoFn) {
+          await FileManagementTravel.removeTravelPhoto(
+            user.id,
+            travel.id,
+            travel.photoFn,
+          );
+        }
         await FileManagementTravel.saveTravelPhoto(user.id, travel.id, file);
         travel.photoFn = file.filename;
       }
@@ -118,11 +120,13 @@ export class TravelService {
       }
 
       if (file) {
-        await FileManagementTravel.removeTravelPhoto(
-          user.id,
-          travel.id,
-          travel.photoFn,
-        );
+        if (travel.photoFn) {
+          await FileManagementTravel.removeTravelPhoto(
+            user.id,
+            travel.id,
+            travel.photoFn,
+          );
+        }
         await FileManagementTravel.saveTravelPhoto(user.id, travel.id, file);
         travel.photoFn = file.filename;
       }
