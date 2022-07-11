@@ -9,11 +9,11 @@ export interface CreateTravelDtoInterface {
 }
 
 export interface UpdateTravelDtoInterface {
-  title?: string;
-  description?: string;
-  destination?: string;
-  comradesCount?: number;
-  travelStartAt?: string;
-  travelEndAt?: string;
-  photo?: any;
+  title: string;
+  description: string;
+  destination: string;
+  comradesCount: number;
+  travelStartAt: string;
+  travelEndAt: string;
+  photo: any;
 }

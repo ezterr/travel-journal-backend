@@ -6,8 +6,8 @@ export interface CreatePostDtoInterface {
 }
 
 export interface UpdatePostDtoInterface {
-  title?: string;
-  destination?: string;
-  description?: string;
-  photo?: string;
+  title: string;
+  destination: string;
+  description: string;
+  photo: string;
 }

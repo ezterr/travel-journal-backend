@@ -7,10 +7,10 @@ export interface CreateUserDtoInterface {
 }
 
 export interface UpdateUserDtoInterface {
-  firstName?: string;
-  lastName?: string;
-  bio?: string;
-  password?: string;
-  newPassword?: string;
-  photo?: any;
+  firstName: string;
+  lastName: string;
+  bio: string;
+  password: string;
+  newPassword: string;
+  photo: any;
 }
