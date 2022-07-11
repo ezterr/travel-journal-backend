@@ -1,4 +1,4 @@
-export interface Post {
+export interface PostInterface {
   id: string;
   title: string;
   destination: string;
@@ -7,7 +7,8 @@ export interface Post {
   photoFn: string;
 }
 
-export type PostSaveResponseData = Omit<Post, 'photoFn'> & {
+export type PostSaveResponseData = Omit<PostInterface, 'photoFn'> & {
   photo: string;
   authorId: string;
+  travelId: string;
 };

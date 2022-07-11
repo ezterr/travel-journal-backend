@@ -13,6 +13,7 @@ import {
   CreateUserResponse,
   DeleteUserResponse,
   GetUserResponse,
+  GetUserStatsResponse,
   UpdateUserResponse,
 } from '../../types';
 import { createHashPwd } from '../../common/utils/create-hash-pwd';
@@ -21,9 +22,16 @@ import { Express } from 'express';
 import { FileManagementUser } from '../../common/utils/file-management-user';
 import { createReadStream } from 'fs';
 import { FileManagement } from '../../common/utils/file-management';
+import { PostService } from '../post/post.service';
+import { TravelService } from '../travel/travel.service';
 
 @Injectable()
 export class UserService {
+  constructor(
+    private readonly travelService: TravelService,
+    private readonly postService: PostService,
+  ) {}
+
   async create(
     createUserDto: CreateUserDto,
     file: Express.Multer.File,
@@ -128,6 +136,16 @@ export class UserService {
     await user.remove();
 
     return this.filter(user);
+  }
+
+  async getStats(id: string): Promise<GetUserStatsResponse> {
+    const travelCount = await this.travelService.getCountByUserId(id);
+    const postCount = await this.postService.getCountByUserId(id);
+
+    return {
+      travelCount,
+      postCount,
+    };
   }
 
   async getPhoto(id: string) {

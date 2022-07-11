@@ -5,6 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { multerStorage } from '../../common/utils/multer-storage';
 import { FileManagement } from '../../common/utils/file-management';
 import { TravelModule } from '../travel/travel.module';
+import { PostModule } from '../post/post.module';
 
 @Module({
   imports: [
@@ -12,6 +13,7 @@ import { TravelModule } from '../travel/travel.module';
       storage: multerStorage(FileManagement.storageDir('tmp')),
     }),
     TravelModule,
+    PostModule,
   ],
   controllers: [UserController],
   providers: [UserService],

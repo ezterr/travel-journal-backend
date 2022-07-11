@@ -8,9 +8,10 @@ import {
 } from 'typeorm';
 import { Travel } from '../../travel/entities/travel.entity';
 import { User } from '../../user/entities/user.entity';
+import { PostInterface } from '../../../types';
 
 @Entity()
-export class Post extends BaseEntity {
+export class Post extends BaseEntity implements PostInterface {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
@@ -41,8 +42,4 @@ export class Post extends BaseEntity {
   })
   @JoinTable()
   public travel: Travel;
-
-  @ManyToOne((type) => User, (user) => user.posts)
-  @JoinTable()
-  public user: User;
 }

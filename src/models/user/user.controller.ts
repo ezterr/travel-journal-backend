@@ -23,6 +23,7 @@ import {
   DeleteUserResponse,
   GetTravelsResponse,
   GetUserResponse,
+  GetUserStatsResponse,
   UpdateUserResponse,
 } from '../../types';
 import { ReadStream } from 'fs';
@@ -31,6 +32,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { SetOwnerIdParamKey } from '../../common/decorators/set-owner-id-param-key';
 import { TravelService } from '../travel/travel.service';
 import { CreateTravelDto } from '../travel/dto/create-travel.dto';
+import { PostService } from '../post/post.service';
 
 @Controller('/api/user')
 export class UserController {
@@ -69,6 +71,12 @@ export class UserController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<UpdateUserResponse> {
     return this.userService.update(id, updateUserDto, file);
+  }
+
+  @Get('/:id/stats')
+  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
+  async getStats(@Param('id') id: string): Promise<GetUserStatsResponse> {
+    return this.userService.getStats(id);
   }
 
   @Get('/photo/:id')

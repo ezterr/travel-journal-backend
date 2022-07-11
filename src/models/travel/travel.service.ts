@@ -183,6 +183,12 @@ export class TravelService {
     return createReadStream(FileManagement.storageDir('no-image.png'));
   }
 
+  async getCountByUserId(id: string): Promise<number> {
+    return Travel.count({
+      where: { user: { id } },
+    });
+  }
+
   filter(travel: Travel): TravelSaveResponseData {
     const { photoFn, user, ...travelResponse } = travel;
 
