@@ -38,13 +38,11 @@ export class TravelService {
       travel.description = createTravelDto.description;
       travel.destination = createTravelDto.destination;
       travel.comradesCount = createTravelDto.comradesCount;
-      travel.travelStartAt =
-        createTravelDto.travelStartAt ?? travel.travelStartAt;
-      travel.travelEndAt = createTravelDto.travelEndAt ?? travel.travelEndAt;
+      travel.startAt = createTravelDto.startAt ?? travel.startAt;
+      travel.endAt = createTravelDto.endAt ?? travel.endAt;
 
       if (
-        new Date(travel.travelStartAt).getTime() >
-        new Date(travel.travelEndAt).getTime()
+        new Date(travel.startAt).getTime() > new Date(travel.endAt).getTime()
       ) {
         throw new BadRequestException();
       }
@@ -91,7 +89,7 @@ export class TravelService {
     const travel = await Travel.find({
       where: { user: { id } },
       relations: ['user'],
-      order: { travelStartAt: 'DESC' },
+      order: { startAt: 'DESC' },
     });
 
     return travel.map((e) => this.filter(e));
@@ -116,13 +114,11 @@ export class TravelService {
       travel.destination = updateTravelDto.destination ?? travel.destination;
       travel.comradesCount =
         updateTravelDto.comradesCount ?? travel.comradesCount;
-      travel.travelStartAt =
-        updateTravelDto.travelStartAt ?? travel.travelStartAt;
-      travel.travelEndAt = updateTravelDto.travelEndAt ?? travel.travelEndAt;
+      travel.startAt = updateTravelDto.startAt ?? travel.startAt;
+      travel.endAt = updateTravelDto.endAt ?? travel.endAt;
 
       if (
-        new Date(travel.travelStartAt).getTime() >
-        new Date(travel.travelEndAt).getTime()
+        new Date(travel.startAt).getTime() > new Date(travel.endAt).getTime()
       ) {
         throw new BadRequestException();
       }

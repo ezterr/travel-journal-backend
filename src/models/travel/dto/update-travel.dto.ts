@@ -32,10 +32,10 @@ export class UpdateTravelDto
   public comradesCount: number;
 
   @IsDateString()
-  public travelStartAt: string;
+  public startAt: string;
 
   @IsDateString()
-  public travelEndAt: string;
+  public endAt: string;
 
   public photo: any;
 }

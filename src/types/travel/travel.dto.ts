@@ -3,8 +3,8 @@ export interface CreateTravelDtoInterface {
   description: string;
   destination: string;
   comradesCount: number;
-  travelStartAt: string;
-  travelEndAt: string;
+  startAt: string;
+  endAt: string;
   photo: any;
 }
 
@@ -13,7 +13,7 @@ export interface UpdateTravelDtoInterface {
   description: string;
   destination: string;
   comradesCount: number;
-  travelStartAt: string;
-  travelEndAt: string;
+  startAt: string;
+  endAt: string;
   photo: any;
 }
