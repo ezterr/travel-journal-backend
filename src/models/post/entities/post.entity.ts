@@ -23,7 +23,10 @@ export class Post extends BaseEntity {
   @Column({ length: 512 })
   public description: string;
 
-  @Column({ type: 'date' })
+  @Column({
+    type: 'datetime',
+    default: () => 'CURRENT_TIMESTAMP',
+  })
   public createdAt: string;
 
   @Column({

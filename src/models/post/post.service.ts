@@ -81,6 +81,7 @@ export class PostService {
 
     const posts = await Post.find({
       where: { travel: { id } },
+      order: { createdAt: 'DESC' },
       relations: ['user'],
     });
 

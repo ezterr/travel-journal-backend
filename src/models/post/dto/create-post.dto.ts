@@ -14,5 +14,5 @@ export class CreatePostDto implements CreatePostDtoInterface {
   @Length(0, 512)
   public description: string;
 
-  public photo: string;
+  public photo: any;
 }

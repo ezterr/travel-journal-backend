@@ -19,5 +19,5 @@ export class UpdatePostDto
   @Length(0, 512)
   public description: string;
 
-  public photo: string;
+  public photo: any;
 }
