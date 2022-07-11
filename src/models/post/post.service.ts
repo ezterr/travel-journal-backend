@@ -15,6 +15,7 @@ import { Travel } from '../travel/entities/travel.entity';
 import { Post } from './entities/post.entity';
 import { FileManagementPost } from '../../common/utils/file-management-post';
 import { createReadStream, ReadStream } from 'fs';
+import { FileManagement } from '../../common/utils/file-management';
 
 @Injectable()
 export class PostService {
@@ -44,7 +45,7 @@ export class PostService {
       post.user = travel.user;
 
       if (file) {
-        if (post.photoFn && travel.user) {
+        if (post.photoFn) {
           await FileManagementPost.removePostPhoto(
             travel.user.id,
             travel.id,
@@ -116,6 +117,7 @@ export class PostService {
             post.photoFn,
           );
         }
+
         await FileManagementPost.savePostPhoto(
           post.user.id,
           post.travel.id,
@@ -141,13 +143,15 @@ export class PostService {
       where: { id },
       relations: ['travel', 'user'],
     });
-    if (!post || !post?.travel.id) throw new NotFoundException();
 
-    await FileManagementPost.removePostPhoto(
-      post.user.id,
-      post.travel.id,
-      post.photoFn,
-    );
+    if (!post || !post.travel || !post.user) throw new NotFoundException();
+
+    if (post.photoFn)
+      await FileManagementPost.removePostPhoto(
+        post.user.id,
+        post.travel.id,
+        post.photoFn,
+      );
     await post.remove();
 
     return this.filter(post);
@@ -170,7 +174,7 @@ export class PostService {
       return createReadStream(filePath);
     }
 
-    throw new NotFoundException();
+    return createReadStream(FileManagement.storageDir('no-image.png'));
   }
 
   filter(post: Post): PostSaveResponseData {

@@ -181,7 +181,6 @@ export class TravelService {
     }
 
     return createReadStream(FileManagement.storageDir('no-image.png'));
-    throw new NotFoundException();
   }
 
   filter(travel: Travel): TravelSaveResponseData {
