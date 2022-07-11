@@ -11,4 +11,5 @@ export interface TravelInterface {
 
 export type TravelSaveResponseData = Omit<TravelInterface, 'photoFn'> & {
   photo: string;
+  authorId: string;
 };

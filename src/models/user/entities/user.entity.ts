@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { UserInterface } from '../../../types';
 import { Travel } from '../../travel/entities/travel.entity';
+import { Post } from '../../post/entities/post.entity';
 
 @Entity()
 export class User extends BaseEntity implements UserInterface {
@@ -54,4 +55,7 @@ export class User extends BaseEntity implements UserInterface {
 
   @OneToMany((type) => Travel, (travel) => travel.user)
   public travels: Travel[];
+
+  @OneToMany((type) => Post, (post) => post.user)
+  public posts: Post[];
 }

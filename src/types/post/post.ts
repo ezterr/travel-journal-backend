@@ -9,4 +9,5 @@ export interface Post {
 
 export type PostSaveResponseData = Omit<Post, 'photoFn'> & {
   photo: string;
+  authorId: string;
 };

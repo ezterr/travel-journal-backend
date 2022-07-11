@@ -11,6 +11,7 @@ import {
   UploadedFile,
   Header,
   Inject,
+  HttpCode,
 } from '@nestjs/common';
 import { TravelService } from './travel.service';
 import { CreateTravelDto } from './dto/create-travel.dto';
@@ -55,30 +56,23 @@ export class TravelController {
   async update(
     @Param('id') id: string,
     @Body() updateTravelDto: UpdateTravelDto,
-    @UserObj() user: User,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<UpdateTravelResponse> {
-    return this.travelService.update(id, user, updateTravelDto, file);
+    return this.travelService.update(id, updateTravelDto, file);
   }
 
   @Delete('/:id')
   @UseGuards(TravelOwnerGuard)
-  async remove(
-    @Param('id') id: string,
-    @UserObj() user: User,
-  ): Promise<DeleteTravelResponse> {
-    return this.travelService.remove(id, user);
+  async remove(@Param('id') id: string): Promise<DeleteTravelResponse> {
+    return this.travelService.remove(id);
   }
 
   @Get('/photo/:id')
   @UseGuards(TravelOwnerGuard)
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
-  async getPhoto(
-    @Param('id') id: string,
-    @UserObj() user: User,
-  ): Promise<ReadStream> {
-    return this.travelService.getPhoto(id, user);
+  async getPhoto(@Param('id') id: string): Promise<ReadStream> {
+    return this.travelService.getPhoto(id);
   }
 
   @Post('/:id/post')
@@ -87,12 +81,11 @@ export class TravelController {
   async createPost(
     @Body() createPostDto: CreatePostDto,
     @Param('id') id: string,
-    @UserObj() user: User,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<CreatePostResponse> {
-    return this.postService.create(id, user, createPostDto, file);
+    return this.postService.create(id, createPostDto, file);
   }
-  //@TODO zamienić user na userId
+
   @Get('/:id/post')
   @UseGuards(TravelOwnerGuard)
   async findAllPosts(@Param('id') id: string): Promise<GetPostsResponse> {

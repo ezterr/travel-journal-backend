@@ -14,25 +14,23 @@ import {
 import { Travel } from '../travel/entities/travel.entity';
 import { Post } from './entities/post.entity';
 import { FileManagementPost } from '../../common/utils/file-management-post';
-import { User } from '../user/entities/user.entity';
-import { DataSource } from 'typeorm';
 import { createReadStream, ReadStream } from 'fs';
 
 @Injectable()
 export class PostService {
-  constructor(private readonly dataSource: DataSource) {}
-
   async create(
     travelId: string,
-    user: User,
     createPostDto: CreatePostDto,
     file: Express.Multer.File,
   ): Promise<CreatePostResponse> {
     try {
       if (!travelId) throw new BadRequestException();
 
-      const travel = await Travel.findOne({ where: { id: travelId } });
-      if (!travel || !user) throw new BadRequestException();
+      const travel = await Travel.findOne({
+        where: { id: travelId },
+        relations: ['user'],
+      });
+      if (!travel || !travel.user) throw new BadRequestException();
 
       const post = new Post();
       post.title = createPostDto.title;
@@ -43,16 +41,17 @@ export class PostService {
       await post.save();
 
       post.travel = travel;
+      post.user = travel.user;
 
       if (file) {
-        if (post.photoFn) {
+        if (post.photoFn && travel.user) {
           await FileManagementPost.removePostPhoto(
-            user.id,
+            travel.user.id,
             travel.id,
             post.photoFn,
           );
         }
-        await FileManagementPost.savePostPhoto(user.id, travel.id, file);
+        await FileManagementPost.savePostPhoto(travel.user.id, travel.id, file);
         post.photoFn = file.filename;
       }
 
@@ -68,7 +67,10 @@ export class PostService {
   async findOne(id: string): Promise<GetPostResponse> {
     if (!id) throw new BadRequestException();
 
-    const post = await Post.findOne({ where: { id } });
+    const post = await Post.findOne({
+      where: { id },
+      relations: ['user'],
+    });
     if (!post) throw new NotFoundException();
 
     return this.filter(post);
@@ -79,6 +81,7 @@ export class PostService {
 
     const posts = await Post.find({
       where: { travel: { id } },
+      relations: ['user'],
     });
 
     return posts.map((e) => this.filter(e));
@@ -86,7 +89,6 @@ export class PostService {
 
   async update(
     id: string,
-    user: User,
     updatePostDto: UpdatePostDto,
     file: Express.Multer.File,
   ) {
@@ -95,9 +97,9 @@ export class PostService {
 
       const post = await Post.findOne({
         where: { id },
-        relations: ['travel'],
+        relations: ['travel', 'user'],
       });
-      if (!post || !post.travel) throw new BadRequestException();
+      if (!post || !post.travel || !post.user) throw new BadRequestException();
 
       post.title = updatePostDto.title ?? post.title;
       post.destination = updatePostDto.destination ?? post.destination;
@@ -108,12 +110,16 @@ export class PostService {
       if (file) {
         if (post.photoFn) {
           await FileManagementPost.removePostPhoto(
-            user.id,
+            post.user.id,
             post.travel.id,
             post.photoFn,
           );
         }
-        await FileManagementPost.savePostPhoto(user.id, post.travel.id, file);
+        await FileManagementPost.savePostPhoto(
+          post.user.id,
+          post.travel.id,
+          file,
+        );
         post.photoFn = file.filename;
       }
 
@@ -127,17 +133,17 @@ export class PostService {
     }
   }
 
-  async remove(id: string, user: User) {
+  async remove(id: string) {
     if (!id) throw new BadRequestException();
 
     const post = await Post.findOne({
       where: { id },
-      relations: ['travel'],
+      relations: ['travel', 'user'],
     });
     if (!post || !post?.travel.id) throw new NotFoundException();
 
     await FileManagementPost.removePostPhoto(
-      user.id,
+      post.user.id,
       post.travel.id,
       post.photoFn,
     );
@@ -146,17 +152,17 @@ export class PostService {
     return this.filter(post);
   }
 
-  async getPhoto(id: string, user: User): Promise<ReadStream> {
-    if (!id || !user) throw new BadRequestException();
+  async getPhoto(id: string): Promise<ReadStream> {
+    if (!id) throw new BadRequestException();
 
     const post = await Post.findOne({
       where: { id },
-      relations: ['travel'],
+      relations: ['travel', 'user'],
     });
 
-    if (post?.photoFn && post?.travel.id) {
+    if (post?.photoFn && post.travel && post.user) {
       const filePath = FileManagementPost.getPostPhoto(
-        user.id,
+        post.user.id,
         post.travel.id,
         post.photoFn,
       );
@@ -167,11 +173,12 @@ export class PostService {
   }
 
   filter(post: Post): PostSaveResponseData {
-    const { photoFn, travel, ...postResponse } = post;
+    const { photoFn, travel, user, ...postResponse } = post;
 
     return {
       ...postResponse,
       photo: `/api/post/photo/${postResponse.id}`,
+      authorId: user.id,
     };
   }
 }

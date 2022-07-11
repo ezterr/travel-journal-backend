@@ -40,26 +40,22 @@ export class PostController {
   update(
     @Param('id') id: string,
     @Body() updatePostDto: UpdatePostDto,
-    @UserObj() user: User,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.postService.update(id, user, updatePostDto, file);
+    return this.postService.update(id, updatePostDto, file);
   }
 
   @Delete(':id')
   @UseGuards(PostOwnerGuard)
-  remove(@Param('id') id: string, @UserObj() user: User) {
-    return this.postService.remove(id, user);
+  remove(@Param('id') id: string) {
+    return this.postService.remove(id);
   }
 
   @Get('/photo/:id')
   @UseGuards(PostOwnerGuard)
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
-  async getPhoto(
-    @Param('id') id: string,
-    @UserObj() user: User,
-  ): Promise<ReadStream> {
-    return this.postService.getPhoto(id, user);
+  async getPhoto(@Param('id') id: string): Promise<ReadStream> {
+    return this.postService.getPhoto(id);
   }
 }

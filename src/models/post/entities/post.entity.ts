@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Travel } from '../../travel/entities/travel.entity';
+import { User } from '../../user/entities/user.entity';
 
 @Entity()
 export class Post extends BaseEntity {
@@ -32,7 +33,13 @@ export class Post extends BaseEntity {
   })
   public photoFn: string;
 
-  @ManyToOne((type) => Travel, (travel) => travel.posts)
+  @ManyToOne((type) => Travel, (travel) => travel.posts, {
+    onDelete: 'CASCADE',
+  })
   @JoinTable()
   public travel: Travel;
+
+  @ManyToOne((type) => User, (user) => user.posts)
+  @JoinTable()
+  public user: User;
 }

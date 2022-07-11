@@ -76,7 +76,10 @@ export class TravelService {
   async findOne(id: string): Promise<GetTravelResponse> {
     if (!id) throw new BadRequestException();
 
-    const travel = await Travel.findOne({ where: { id } });
+    const travel = await Travel.findOne({
+      where: { id },
+      relations: ['user'],
+    });
     if (!travel) throw new NotFoundException();
 
     return this.filter(travel);
@@ -87,6 +90,7 @@ export class TravelService {
 
     const travel = await Travel.find({
       where: { user: { id } },
+      relations: ['user'],
       order: { travelStartAt: 'DESC' },
     });
 
@@ -95,15 +99,17 @@ export class TravelService {
 
   async update(
     id: string,
-    user: User,
     updateTravelDto: UpdateTravelDto,
     file: Express.Multer.File,
   ): Promise<UpdateTravelResponse> {
     try {
-      if (!id || !user) throw new BadRequestException();
+      if (!id) throw new BadRequestException();
 
-      const travel = await Travel.findOne({ where: { id } });
-      if (!travel) throw new NotFoundException();
+      const travel = await Travel.findOne({
+        where: { id },
+        relations: ['user'],
+      });
+      if (!travel || !travel.user) throw new NotFoundException();
 
       travel.title = updateTravelDto.title ?? travel.title;
       travel.description = updateTravelDto.description ?? travel.description;
@@ -124,12 +130,16 @@ export class TravelService {
       if (file) {
         if (travel.photoFn) {
           await FileManagementTravel.removeTravelPhoto(
-            user.id,
+            travel.user.id,
             travel.id,
             travel.photoFn,
           );
         }
-        await FileManagementTravel.saveTravelPhoto(user.id, travel.id, file);
+        await FileManagementTravel.saveTravelPhoto(
+          travel.user.id,
+          travel.id,
+          file,
+        );
         travel.photoFn = file.filename;
       }
 
@@ -142,28 +152,32 @@ export class TravelService {
     }
   }
 
-  async remove(id: string, user: User): Promise<DeleteTravelResponse> {
-    if (!id || !user) throw new BadRequestException();
+  async remove(id: string): Promise<DeleteTravelResponse> {
+    if (!id) throw new BadRequestException();
 
-    const travel = await Travel.findOne({ where: { id } });
-    if (!travel) throw new NotFoundException();
+    const travel = await Travel.findOne({
+      where: { id },
+      relations: ['user'],
+    });
+    if (!travel || !travel.user) throw new NotFoundException();
 
-    await FileManagementTravel.removeTravelDir(user.id, id);
+    await FileManagementTravel.removeTravelDir(travel.user.id, id);
     await travel.remove();
 
     return this.filter(travel);
   }
 
-  async getPhoto(id: string, user: User): Promise<ReadStream> {
-    if (!id || !user) throw new BadRequestException();
+  async getPhoto(id: string): Promise<ReadStream> {
+    if (!id) throw new BadRequestException();
 
     const travel = await Travel.findOne({
       where: { id },
+      relations: ['user'],
     });
 
-    if (travel?.photoFn) {
+    if (travel?.photoFn && travel.user) {
       const filePath = FileManagementTravel.getTravelPhoto(
-        user.id,
+        travel.user.id,
         travel.id,
         travel.photoFn,
       );
@@ -180,6 +194,7 @@ export class TravelService {
     return {
       ...travelResponse,
       photo: `/api/travel/photo/${travelResponse.id}`,
+      authorId: user.id,
     };
   }
 }
