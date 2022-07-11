@@ -1,5 +1,4 @@
 import {
-  IsDate,
   IsDateString,
   IsInt,
   IsString,
@@ -7,9 +6,9 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import { MoreThan } from 'typeorm';
+import { CreateTravelDtoInterface } from '../../../types';
 
-export class CreateTravelDto {
+export class CreateTravelDto implements CreateTravelDtoInterface {
   @IsString()
   @Length(2, 128)
   public title: string;

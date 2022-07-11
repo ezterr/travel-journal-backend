@@ -1,8 +1,12 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreatePostDto } from './create-post.dto';
-import { IsDateString, IsString, Length } from 'class-validator';
+import { IsString, Length } from 'class-validator';
+import { UpdatePostDtoInterface } from '../../../types';
 
-export class UpdatePostDto extends PartialType(CreatePostDto) {
+export class UpdatePostDto
+  extends PartialType(CreatePostDto)
+  implements UpdatePostDtoInterface
+{
   @IsString()
   @Length(2, 128)
   public title: string;

@@ -1,6 +1,7 @@
-import { IsDateString, IsString, Length } from 'class-validator';
+import { IsString, Length } from 'class-validator';
+import { CreatePostDtoInterface } from '../../../types';
 
-export class CreatePostDto {
+export class CreatePostDto implements CreatePostDtoInterface {
   @IsString()
   @Length(2, 128)
   public title: string;

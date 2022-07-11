@@ -1,6 +1,7 @@
 import { IsEmail, IsString, Length, Matches } from 'class-validator';
+import { CreateUserDtoInterface } from '../../../types/user/user.dto';
 
-export class CreateUserDto {
+export class CreateUserDto implements CreateUserDtoInterface {
   @IsString()
   @Length(2, 64)
   public firstName: string;
