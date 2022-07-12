@@ -29,10 +29,8 @@ import {
 import { ReadStream } from 'fs';
 import { Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { SetOwnerIdParamKey } from '../../common/decorators/set-owner-id-param-key';
 import { TravelService } from '../travel/travel.service';
 import { CreateTravelDto } from '../travel/dto/create-travel.dto';
-import { PostService } from '../post/post.service';
 
 @Controller('/api/user')
 export class UserController {

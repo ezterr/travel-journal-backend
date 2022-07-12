@@ -1,5 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
+import { MockFunctionMetadata, ModuleMocker } from 'jest-mock';
+const moduleMocker = new ModuleMocker(global);
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -7,7 +9,20 @@ describe('AuthController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-    }).compile();
+    })
+      .useMocker((token) => {
+        // if (token === CatsService) {
+        //   return { findAll: jest.fn().mockResolvedValue(results) };
+        // }
+        if (typeof token === 'function') {
+          const mockMetadata = moduleMocker.getMetadata(
+            token,
+          ) as MockFunctionMetadata<any, any>;
+          const Mock = moduleMocker.generateFromMetadata(mockMetadata);
+          return new Mock();
+        }
+      })
+      .compile();
 
     controller = module.get<AuthController>(AuthController);
   });

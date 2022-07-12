@@ -143,6 +143,8 @@ export class UserService {
   }
 
   async getStats(id: string): Promise<GetUserStatsResponse> {
+    if (!id) throw new BadRequestException();
+
     const travelCount = await this.travelService.getCountByUserId(id);
     const postCount = await this.postService.getCountByUserId(id);
 
