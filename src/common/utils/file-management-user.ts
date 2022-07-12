@@ -1,7 +1,7 @@
 import { mkdir, rm } from 'fs/promises';
 import { Express } from 'express';
 import { join } from 'path';
-import { FileManagement } from './file-management';
+import { FileManagement, WebpFile } from './file-management';
 
 export class FileManagementUser extends FileManagement {
   static async removeUserDir(userId: string) {
@@ -13,11 +13,14 @@ export class FileManagementUser extends FileManagement {
     }
   }
 
-  static async saveUserPhoto(userId: string, file: Express.Multer.File) {
+  static async saveUserPhoto(
+    userId: string,
+    file: Express.Multer.File,
+  ): Promise<WebpFile> {
     const userDir = this.getUserDirPath(userId);
-
     await this.createUserDir(userId);
-    await this.moveFile(file.path, `${join(userDir, file.filename)}`);
+
+    return this.convertToWebp(file, userDir);
   }
 
   static async removeUserPhoto(userId: string, photoName: string) {

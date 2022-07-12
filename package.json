@@ -36,6 +36,7 @@
     "class-validator": "^0.13.2",
     "cookie-parser": "^1.4.6",
     "helmet": "^5.1.0",
+    "image-size": "^1.0.1",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^2.3.3",
     "passport": "^0.6.0",
@@ -44,6 +45,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0",
+    "sharp": "^0.30.7",
     "typeorm": "^0.3.7",
     "uuid": "^8.3.2"
   },
@@ -59,6 +61,7 @@
     "@types/node": "^16.0.0",
     "@types/passport-jwt": "^3.0.6",
     "@types/passport-local": "^1.0.34",
+    "@types/sharp": "^0.30.4",
     "@types/supertest": "^2.0.11",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.0.0",

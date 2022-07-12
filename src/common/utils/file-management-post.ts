@@ -1,18 +1,17 @@
 import { mkdir, rm } from 'fs/promises';
 import { join } from 'path';
 import { Express } from 'express';
-import { FileManagement } from './file-management';
+import { FileManagement, WebpFile } from './file-management';
 
 export class FileManagementPost extends FileManagement {
   static async savePostPhoto(
     userId: string,
     travelId: string,
     file: Express.Multer.File,
-  ) {
+  ): Promise<WebpFile> {
     const postDir = this.getPostDirPath(userId, travelId);
-
     await this.createPostDir(userId, travelId);
-    await this.moveFile(file.path, `${join(postDir, file.filename)}`);
+    return this.convertToWebp(file, postDir);
   }
 
   static async removePostPhoto(

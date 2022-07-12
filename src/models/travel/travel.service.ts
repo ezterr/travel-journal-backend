@@ -19,6 +19,7 @@ import { FileManagementTravel } from '../../common/utils/file-management-travel'
 import { createReadStream, ReadStream } from 'fs';
 import { FileManagementUser } from '../../common/utils/file-management-user';
 import { FileManagement } from '../../common/utils/file-management';
+import { FileManagementPost } from '../../common/utils/file-management-post';
 
 @Injectable()
 export class TravelService {
@@ -58,8 +59,14 @@ export class TravelService {
             travel.photoFn,
           );
         }
-        await FileManagementTravel.saveTravelPhoto(user.id, travel.id, file);
-        travel.photoFn = file.filename;
+
+        const newFile = await FileManagementTravel.saveTravelPhoto(
+          user.id,
+          travel.id,
+          file,
+        );
+        await FileManagementPost.removeFromTmp(file.filename);
+        travel.photoFn = newFile.filename;
       }
 
       await travel.save();
@@ -131,12 +138,15 @@ export class TravelService {
             travel.photoFn,
           );
         }
-        await FileManagementTravel.saveTravelPhoto(
+
+        const newFile = await FileManagementTravel.saveTravelPhoto(
           travel.user.id,
           travel.id,
           file,
         );
-        travel.photoFn = file.filename;
+        await FileManagementPost.removeFromTmp(file.filename);
+
+        travel.photoFn = newFile.filename;
       }
 
       await travel.save();

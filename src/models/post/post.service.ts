@@ -46,6 +46,7 @@ export class PostService {
       await post.save();
 
       post.travel = travel;
+      console.log(travel);
 
       if (file) {
         if (post.photoFn) {
@@ -55,8 +56,14 @@ export class PostService {
             post.photoFn,
           );
         }
-        await FileManagementPost.savePostPhoto(travel.user.id, travel.id, file);
-        post.photoFn = file.filename;
+        const newFile = await FileManagementPost.savePostPhoto(
+          travel.user.id,
+          travel.id,
+          file,
+        );
+        await FileManagementPost.removeFromTmp(file.filename);
+
+        post.photoFn = newFile.filename;
       }
 
       await post.save();
@@ -120,12 +127,13 @@ export class PostService {
           );
         }
 
-        await FileManagementPost.savePostPhoto(
+        const newFile = await FileManagementPost.savePostPhoto(
           post.travel.user.id,
           post.travel.id,
           file,
         );
-        post.photoFn = file.filename;
+        await FileManagementPost.removeFromTmp(file.filename);
+        post.photoFn = newFile.filename;
       }
 
       await post.save();

@@ -57,9 +57,11 @@ export class UserService {
         if (user.photoFn) {
           await FileManagementUser.removeUserPhoto(user.id, user.photoFn);
         }
-        await FileManagementUser.saveUserPhoto(user.id, file);
 
-        user.photoFn = file.filename;
+        const newFile = await FileManagementUser.saveUserPhoto(user.id, file);
+        await FileManagementUser.removeFromTmp(file.filename);
+
+        user.photoFn = newFile.filename;
       }
 
       await user.save();
@@ -112,9 +114,11 @@ export class UserService {
         if (user.photoFn) {
           await FileManagementUser.removeUserPhoto(user.id, user.photoFn);
         }
-        await FileManagementUser.saveUserPhoto(id, file);
 
-        user.photoFn = file.filename;
+        const newFile = await FileManagementUser.saveUserPhoto(user.id, file);
+        await FileManagementUser.removeFromTmp(file.filename);
+
+        user.photoFn = newFile.filename;
       }
 
       await user.save();
