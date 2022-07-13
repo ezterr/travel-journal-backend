@@ -1,4 +1,4 @@
-import { CreateFriendDtoInterface } from '../../../types/friend/friend.dto';
+import { CreateFriendDtoInterface } from '../../../types';
 import { IsString, Length } from 'class-validator';
 
 export class CreateFriendDto implements CreateFriendDtoInterface {

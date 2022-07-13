@@ -11,6 +11,7 @@ import {
   Header,
   UploadedFile,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -34,6 +35,7 @@ import { CreateTravelDto } from '../travel/dto/create-travel.dto';
 import { CreateFriendDto } from '../friend/dto/create-friend.dto';
 import { CreateFriendResponse } from '../../types/friend/friend-response';
 import { FriendService } from '../friend/friend.service';
+import { User } from './entities/user.entity';
 
 @Controller('/api/user')
 export class UserController {
@@ -112,6 +114,21 @@ export class UserController {
     @Body() createFriendDto: CreateFriendDto,
     @Param('id') id: string,
   ): Promise<CreateFriendResponse> {
-    return this.friendService.create(createFriendDto);
+    return this.friendService.create(id, createFriendDto);
+  }
+
+  @Get('/:id/friend')
+  @UseGuards(JwtAuthGuard)
+  async getAllFriendshipByUserId(
+    @Param('id') id: string,
+    @Query('waiting') waiting: boolean,
+    @Query('accepted') accepted: boolean,
+    @Query('invitation') invitation: boolean,
+  ) {
+    return this.friendService.findAllByUserId(id, {
+      waiting,
+      accepted,
+      invitation,
+    });
   }
 }

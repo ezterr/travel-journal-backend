@@ -9,8 +9,9 @@ export interface FriendInterface {
 }
 
 export enum FriendStatus {
-  Waiting = 'Waiting',
-  Accepted = 'Accepted',
+  Waiting = 'waiting',
+  Accepted = 'accepted',
+  Invitation = 'invitation',
 }
 
 export type FriendSaveResponseData = Omit<
