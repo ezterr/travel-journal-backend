@@ -26,7 +26,7 @@ export class FileManagement {
   }
 
   static storageDir(target: string) {
-    const basePath = join(__dirname, '../../../storage');
+    const basePath = join(__dirname, '../../../../storage');
     return safeJoin(basePath, target);
   }
 
