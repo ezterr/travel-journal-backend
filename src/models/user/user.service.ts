@@ -19,9 +19,9 @@ import {
 import { createHashPwd } from '../../common/utils/create-hash-pwd';
 import { UserSaveResponseData } from '../../types';
 import { Express } from 'express';
-import { FileManagementUser } from '../../common/utils/file-management-user';
+import { FileManagementUser } from '../../common/utils/file-management/file-management-user';
 import { createReadStream } from 'fs';
-import { FileManagement } from '../../common/utils/file-management';
+import { FileManagement } from '../../common/utils/file-management/file-management';
 import { PostService } from '../post/post.service';
 import { TravelService } from '../travel/travel.service';
 

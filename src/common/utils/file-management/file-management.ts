@@ -1,6 +1,6 @@
 import { rename, rm } from 'fs/promises';
 import { join } from 'path';
-import { safeJoin } from './safe-join';
+import { safeJoin } from '../safe-join';
 import { Express } from 'express';
 import path from 'path';
 import sharp from 'sharp';

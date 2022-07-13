@@ -3,7 +3,7 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { MulterModule } from '@nestjs/platform-express';
 import { multerStorage } from '../../common/utils/multer-storage';
-import { FileManagement } from '../../common/utils/file-management';
+import { FileManagement } from '../../common/utils/file-management/file-management';
 import { TravelModule } from '../travel/travel.module';
 import { PostModule } from '../post/post.module';
 

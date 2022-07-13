@@ -14,9 +14,9 @@ import {
 } from '../../types';
 import { Travel } from '../travel/entities/travel.entity';
 import { Post } from './entities/post.entity';
-import { FileManagementPost } from '../../common/utils/file-management-post';
+import { FileManagementPost } from '../../common/utils/file-management/file-management-post';
 import { createReadStream, ReadStream } from 'fs';
-import { FileManagement } from '../../common/utils/file-management';
+import { FileManagement } from '../../common/utils/file-management/file-management';
 import { DataSource } from 'typeorm';
 
 @Injectable()

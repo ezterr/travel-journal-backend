@@ -3,7 +3,7 @@ import { PostController } from './post.controller';
 import { PostService } from './post.service';
 import { MulterModule } from '@nestjs/platform-express';
 import { multerStorage } from '../../common/utils/multer-storage';
-import { FileManagement } from '../../common/utils/file-management';
+import { FileManagement } from '../../common/utils/file-management/file-management';
 import { DatabaseModule } from '../../providers/database/database.module';
 import { MockFunctionMetadata, ModuleMocker } from 'jest-mock';
 const moduleMocker = new ModuleMocker(global);

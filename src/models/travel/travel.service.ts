@@ -15,11 +15,11 @@ import {
 } from '../../types';
 import { Travel } from './entities/travel.entity';
 import { User } from '../user/entities/user.entity';
-import { FileManagementTravel } from '../../common/utils/file-management-travel';
+import { FileManagementTravel } from '../../common/utils/file-management/file-management-travel';
 import { createReadStream, ReadStream } from 'fs';
-import { FileManagementUser } from '../../common/utils/file-management-user';
-import { FileManagement } from '../../common/utils/file-management';
-import { FileManagementPost } from '../../common/utils/file-management-post';
+import { FileManagementUser } from '../../common/utils/file-management/file-management-user';
+import { FileManagement } from '../../common/utils/file-management/file-management';
+import { FileManagementPost } from '../../common/utils/file-management/file-management-post';
 
 @Injectable()
 export class TravelService {
