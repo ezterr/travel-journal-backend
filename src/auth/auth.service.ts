@@ -5,7 +5,8 @@ import { UserService } from '../models/user/user.service';
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuid } from 'uuid';
-import { config } from '../config';
+import { config } from '../config/config';
+
 import { LoginResponse, LogoutAllResponse, LogoutResponse } from '../types';
 
 @Injectable()
