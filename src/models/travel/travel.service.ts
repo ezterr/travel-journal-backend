@@ -39,8 +39,8 @@ export class TravelService {
       travel.description = createTravelDto.description;
       travel.destination = createTravelDto.destination;
       travel.comradesCount = createTravelDto.comradesCount;
-      travel.startAt = createTravelDto.startAt ?? travel.startAt;
-      travel.endAt = createTravelDto.endAt ?? travel.endAt;
+      travel.startAt = new Date(createTravelDto.startAt) ?? travel.startAt;
+      travel.endAt = new Date(createTravelDto.endAt) ?? travel.endAt;
 
       if (
         new Date(travel.startAt).getTime() > new Date(travel.endAt).getTime()
@@ -121,8 +121,8 @@ export class TravelService {
       travel.destination = updateTravelDto.destination ?? travel.destination;
       travel.comradesCount =
         updateTravelDto.comradesCount ?? travel.comradesCount;
-      travel.startAt = updateTravelDto.startAt ?? travel.startAt;
-      travel.endAt = updateTravelDto.endAt ?? travel.endAt;
+      travel.startAt = new Date(updateTravelDto.startAt) ?? travel.startAt;
+      travel.endAt = new Date(updateTravelDto.endAt) ?? travel.endAt;
 
       if (
         new Date(travel.startAt).getTime() > new Date(travel.endAt).getTime()

@@ -7,7 +7,6 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Travel } from '../../travel/entities/travel.entity';
-import { User } from '../../user/entities/user.entity';
 import { PostInterface } from '../../../types';
 
 @Entity()
@@ -28,7 +27,7 @@ export class Post extends BaseEntity implements PostInterface {
     type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  public createdAt: string;
+  public createdAt: Date;
 
   @Column({
     length: 50,

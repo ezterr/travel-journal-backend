@@ -31,12 +31,16 @@ import { Express } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { TravelService } from '../travel/travel.service';
 import { CreateTravelDto } from '../travel/dto/create-travel.dto';
+import { CreateFriendDto } from '../friend/dto/create-friend.dto';
+import { CreateFriendResponse } from '../../types/friend/friend-response';
+import { FriendService } from '../friend/friend.service';
 
 @Controller('/api/user')
 export class UserController {
   constructor(
     private readonly userService: UserService,
     private readonly travelService: TravelService,
+    private readonly friendService: FriendService,
   ) {}
 
   @Post('/')
@@ -100,5 +104,14 @@ export class UserController {
     @Param('id') id: string,
   ): Promise<CreateTravelResponse> {
     return this.travelService.create(createTravelDto, id, file);
+  }
+
+  @Post('/:id/friend')
+  @UseGuards(JwtAuthGuard)
+  async createFriendship(
+    @Body() createFriendDto: CreateFriendDto,
+    @Param('id') id: string,
+  ): Promise<CreateFriendResponse> {
+    return this.friendService.create(createFriendDto);
   }
 }

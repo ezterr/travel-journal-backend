@@ -9,6 +9,7 @@ import {
 import { UserInterface } from '../../../types';
 import { Travel } from '../../travel/entities/travel.entity';
 import { Post } from '../../post/entities/post.entity';
+import { Friend } from '../../friend/entities/friend.entity';
 
 @Entity()
 export class User extends BaseEntity implements UserInterface {
@@ -55,4 +56,10 @@ export class User extends BaseEntity implements UserInterface {
 
   @OneToMany((type) => Travel, (travel) => travel.user)
   public travels: Travel[];
+
+  @OneToMany((type) => Friend, (friend) => friend.user)
+  public friends: Friend[];
+
+  @OneToMany((type) => Friend, (friend) => friend.friend)
+  public friendsRevert: Friend[];
 }

@@ -6,6 +6,7 @@ import { multerStorage } from '../../common/utils/multer-storage';
 import { FileManagement } from '../../common/utils/file-management/file-management';
 import { TravelModule } from '../travel/travel.module';
 import { PostModule } from '../post/post.module';
+import { FriendModule } from '../friend/friend.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PostModule } from '../post/post.module';
     }),
     TravelModule,
     PostModule,
+    FriendModule,
   ],
   controllers: [UserController],
   providers: [UserService],

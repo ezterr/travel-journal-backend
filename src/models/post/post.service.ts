@@ -41,7 +41,7 @@ export class PostService {
       post.title = createPostDto.title;
       post.destination = createPostDto.destination;
       post.description = createPostDto.description;
-      post.createdAt = new Date().toISOString();
+      post.createdAt = new Date();
 
       await post.save();
 
