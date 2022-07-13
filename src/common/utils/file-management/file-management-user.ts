@@ -37,13 +37,13 @@ export class FileManagementUser extends FileManagement {
   }
 
   static getUserDirPath(userId: string) {
-    const target = join('/user', userId);
+    const target = join('/users', userId);
     return this.storageDir(target);
   }
 
   static async createUserDir(userId: string) {
     try {
-      const target = join('/user', userId);
+      const target = join('/users', userId);
       const userDir = this.storageDir(target);
       await mkdir(userDir, { recursive: true });
     } catch (e) {

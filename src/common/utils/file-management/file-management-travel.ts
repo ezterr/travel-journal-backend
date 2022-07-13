@@ -42,13 +42,13 @@ export class FileManagementTravel extends FileManagement {
   }
 
   static getTravelDirPath(userId: string, travelId: string) {
-    const target = join('/user', userId, travelId);
+    const target = join('/users', userId, travelId);
     return this.storageDir(target);
   }
 
   static async createTravelDir(userId: string, travelId: string) {
     try {
-      const target = join('/user', userId, travelId);
+      const target = join('/users', userId, travelId);
       const userDir = this.storageDir(target);
       await mkdir(userDir, { recursive: true });
     } catch (e) {

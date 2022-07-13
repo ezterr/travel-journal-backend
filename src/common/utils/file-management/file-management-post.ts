@@ -33,13 +33,13 @@ export class FileManagementPost extends FileManagement {
   }
 
   static getPostDirPath(userId: string, travelId: string) {
-    const target = join('/user', userId, travelId);
+    const target = join('/users', userId, travelId);
     return this.storageDir(target);
   }
 
   static async createPostDir(userId: string, travelId: string) {
     try {
-      const target = join('/user', userId, travelId);
+      const target = join('/users', userId, travelId);
       const userDir = this.storageDir(target);
       await mkdir(userDir, { recursive: true });
     } catch (e) {
