@@ -13,6 +13,7 @@ lerna-debug.log*
 
 # OS
 .DS_Store
+/storage
 
 # Tests
 /coverage
@@ -33,3 +34,6 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# config
+/src/config/config.ts
