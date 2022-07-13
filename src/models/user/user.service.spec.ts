@@ -16,13 +16,13 @@ const moduleMocker = new ModuleMocker(global);
 
 const userById = (id: string, userObj?: Partial<User>): User => {
   const user = new User();
-  user.id = id;
-  user.firstName = user.firstName ?? 'Jan';
-  user.lastName = user.lastName ?? 'Kowalski';
-  user.username = user.username ?? 'janko';
-  user.email = user.email ?? 'jan@xyz.pl';
-  user.bio = user.bio ?? '';
-  user.photoFn = null;
+  user.id = userObj?.id ?? id;
+  user.firstName = userObj?.firstName ?? 'Jan';
+  user.lastName = userObj?.lastName ?? 'Kowalski';
+  user.username = userObj?.username ?? 'janko';
+  user.email = userObj?.email ?? 'jan@xyz.pl';
+  user.bio = userObj?.bio ?? '';
+  user.photoFn = userObj?.id ?? null;
 
   return user;
 };
@@ -139,7 +139,11 @@ describe('UserService', () => {
     ).rejects.toThrow(NotFoundException);
   });
 
-  it('remove should return user with given id and without sensitive data', async () => {
+  it('update should return user without sensitive data', async () => {
+    jest
+      .spyOn(User.prototype, 'save')
+      .mockImplementation(async (options: any) => userById('123'));
+
     const user = await service.update('123', new UpdateUserDto(), undefined);
     expect(user).toEqual(userByIdFiltering('123'));
   });

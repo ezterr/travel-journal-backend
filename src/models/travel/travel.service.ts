@@ -32,7 +32,7 @@ export class TravelService {
       if (!userId) throw new BadRequestException();
 
       const user = await User.findOne({ where: { id: userId } });
-      if (!user) throw new BadRequestException();
+      if (!user) throw new NotFoundException();
 
       const travel = new Travel();
       travel.title = createTravelDto.title;
@@ -194,6 +194,8 @@ export class TravelService {
   }
 
   async getCountByUserId(id: string): Promise<number> {
+    if (!id) throw new BadRequestException();
+
     return Travel.count({
       where: { user: { id } },
     });
