@@ -88,21 +88,13 @@ export class FriendService {
   async update(id: string) {
     if (!id) throw new BadRequestException();
 
-    const friendship = await Friend.findOne({
-      where: { id },
-      relations: ['user', 'friend'],
-    });
-
-    if (!friendship || !friendship.user || !friendship.friend)
-      throw new NotFoundException();
-
-    if (friendship.status !== FriendStatus.Invitation)
-      throw new ForbiddenException();
-
     const { friendshipUser, friendshipFriend } =
-      await this.getFriendshipTwoSite(friendship.user.id, friendship.friend.id);
+      await this.getFriendshipTwoSiteById(id);
 
-    if (!friendship) throw new NotFoundException();
+    if (!friendshipUser || !friendshipFriend) throw new NotFoundException();
+
+    if (friendshipUser.status !== FriendStatus.Invitation)
+      throw new ForbiddenException();
 
     friendshipUser.status = FriendStatus.Accepted;
     friendshipFriend.status = FriendStatus.Accepted;
@@ -110,11 +102,19 @@ export class FriendService {
     await friendshipUser.save();
     await friendshipFriend.save();
 
-    return this.filter(friendship);
+    return this.filter(friendshipUser);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} friend`;
+  async remove(id: string) {
+    if (!id) throw new BadRequestException();
+
+    const { friendshipUser, friendshipFriend } =
+      await this.getFriendshipTwoSiteById(id);
+
+    if (friendshipUser) await friendshipUser.remove();
+    if (friendshipFriend) await friendshipFriend.remove();
+
+    return this.filter(friendshipUser);
   }
 
   async checkFriendshipExist(userId: string, friendId: string) {
@@ -129,6 +129,7 @@ export class FriendService {
         user: { id: userId },
         friend: { id: friendId },
       },
+      relations: ['user', 'friend'],
     });
 
     const friendshipFriend = await Friend.findOne({
@@ -150,6 +151,20 @@ export class FriendService {
     if (!friendshipUser && !friendshipFriend) return null;
 
     return { friendshipUser, friendshipFriend };
+  }
+
+  async getFriendshipTwoSiteById(id: string) {
+    if (!id) throw new BadRequestException();
+
+    const friendship = await Friend.findOne({
+      where: { id },
+      relations: ['user', 'friend'],
+    });
+
+    if (!friendship || !friendship.user || !friendship.friend)
+      throw new NotFoundException();
+
+    return this.getFriendshipTwoSite(friendship.user.id, friendship.friend.id);
   }
 
   filter(friendship: Friend): FriendSaveResponseData {

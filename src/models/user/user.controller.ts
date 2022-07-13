@@ -110,7 +110,7 @@ export class UserController {
   }
 
   @Post('/:id/friend')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
   async createFriendship(
     @Body() createFriendDto: CreateFriendDto,
     @Param('id') id: string,
@@ -119,7 +119,7 @@ export class UserController {
   }
 
   @Get('/:id/friend')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
   async getAllFriendshipByUserId(
     @Param('id') id: string,
     @Query('waiting') waiting: boolean,
