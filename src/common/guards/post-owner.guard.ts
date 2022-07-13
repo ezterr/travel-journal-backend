@@ -31,7 +31,6 @@ export class PostOwnerGuard implements CanActivate {
       .getOne();
 
     if (!postSimple) throw new NotFoundException();
-    console.log(postSimple);
 
     return postSimple.travel.user.id === user.id;
   }
