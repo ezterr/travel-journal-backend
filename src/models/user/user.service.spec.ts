@@ -64,11 +64,11 @@ describe('UserService', () => {
 
     jest
       .spyOn(User.prototype, 'save')
-      .mockImplementation(async (options: any) => userById('123'));
+      .mockImplementation(async () => userById('123'));
 
     jest
       .spyOn(User.prototype, 'remove')
-      .mockImplementation(async (options: any) => userById('123'));
+      .mockImplementation(async () => userById('123'));
 
     service = module.get<UserService>(UserService);
   });
@@ -89,9 +89,7 @@ describe('UserService', () => {
   });
 
   it('findOne should throw NotFoundException', async () => {
-    jest
-      .spyOn(User, 'findOne')
-      .mockImplementation(async (options: any) => null);
+    jest.spyOn(User, 'findOne').mockImplementation(async () => null);
 
     await expect(async () => await service.findOne('1234')).rejects.toThrow(
       NotFoundException,
@@ -112,9 +110,7 @@ describe('UserService', () => {
   });
 
   it('create should return user', async () => {
-    jest
-      .spyOn(User, 'findOne')
-      .mockImplementation(async (options: any) => null);
+    jest.spyOn(User, 'findOne').mockImplementation(async () => null);
 
     const createUserDtoMock = new CreateUserDto();
     createUserDtoMock.password = 'Abcd1234';
@@ -130,9 +126,7 @@ describe('UserService', () => {
   });
 
   it('update should throw NotFoundException', async () => {
-    jest
-      .spyOn(User, 'findOne')
-      .mockImplementation(async (options: any) => null);
+    jest.spyOn(User, 'findOne').mockImplementation(async () => null);
 
     await expect(
       async () => await service.update('123', new UpdateUserDto(), undefined),
@@ -142,7 +136,7 @@ describe('UserService', () => {
   it('update should return user without sensitive data', async () => {
     jest
       .spyOn(User.prototype, 'save')
-      .mockImplementation(async (options: any) => userById('123'));
+      .mockImplementation(async () => userById('123'));
 
     const user = await service.update('123', new UpdateUserDto(), undefined);
     expect(user).toEqual(userByIdFiltering('123'));
@@ -155,9 +149,7 @@ describe('UserService', () => {
   });
 
   it('remove should throw NotFoundException', async () => {
-    jest
-      .spyOn(User, 'findOne')
-      .mockImplementation(async (options: any) => null);
+    jest.spyOn(User, 'findOne').mockImplementation(async () => null);
 
     await expect(async () => await service.remove('123')).rejects.toThrow(
       NotFoundException,
@@ -205,9 +197,7 @@ describe('UserService', () => {
   });
 
   it('checkUserFieldUniqueness should throw Error', async () => {
-    jest
-      .spyOn(User, 'findOne')
-      .mockImplementation(async (options: any) => null);
+    jest.spyOn(User, 'findOne').mockImplementation(async () => null);
 
     expect(
       await service.checkUserFieldUniqueness({ email: 'example@xyz.ab' }),

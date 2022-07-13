@@ -1,17 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TravelService } from './travel.service';
-import {
-  BadRequestException,
-  ConflictException,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { User } from '../user/entities/user.entity';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { UpdateUserDto } from '../user/dto/update-user.dto';
+
 import { Travel } from './entities/travel.entity';
 import { CreateTravelDto } from './dto/create-travel.dto';
 import { UpdateTravelDto } from './dto/update-travel.dto';
-import spyOn = jest.spyOn;
 
 const userById = (id: string, userObj?: Partial<User>): User => {
   const user = new User();
@@ -69,11 +63,11 @@ describe('TravelService', () => {
 
     jest
       .spyOn(Travel.prototype, 'save')
-      .mockImplementation(async (options: any) => travelById('123'));
+      .mockImplementation(async () => travelById('123'));
 
     jest
       .spyOn(Travel.prototype, 'remove')
-      .mockImplementation(async (options: any) => travelById('123'));
+      .mockImplementation(async () => travelById('123'));
 
     service = module.get<TravelService>(TravelService);
   });
@@ -94,9 +88,7 @@ describe('TravelService', () => {
   });
 
   it('findOne should throw NotFoundException', async () => {
-    jest
-      .spyOn(Travel, 'findOne')
-      .mockImplementation(async (options: any) => null);
+    jest.spyOn(Travel, 'findOne').mockImplementation(async () => null);
 
     await expect(async () => await service.findOne('1234')).rejects.toThrow(
       NotFoundException,
@@ -131,9 +123,7 @@ describe('TravelService', () => {
   });
 
   it('create should throw NotFoundException if user not found', async () => {
-    jest
-      .spyOn(User, 'findOne')
-      .mockImplementation(async (options: any) => null);
+    jest.spyOn(User, 'findOne').mockImplementation(async () => null);
 
     await expect(async () =>
       service.create(new CreateTravelDto(), '123', undefined),
@@ -157,16 +147,14 @@ describe('TravelService', () => {
   });
 
   it('update should throw NotFoundException', async () => {
-    jest
-      .spyOn(Travel, 'findOne')
-      .mockImplementation(async (options: any) => null);
+    jest.spyOn(Travel, 'findOne').mockImplementation(async () => null);
 
     await expect(
       async () => await service.update('123', new UpdateTravelDto(), undefined),
     ).rejects.toThrow(NotFoundException);
 
     jest.spyOn(Travel, 'findOne').mockImplementation(
-      async (options: any) =>
+      async () =>
         ({
           ...travelById('123'),
           user: undefined,
@@ -205,7 +193,7 @@ describe('TravelService', () => {
     expect(travel).toEqual(travelByIdFiltering('123'));
   });
 
-  it('remove should return user with given id and without sensitive data', async () => {
+  it('remove should return travel with given id and without sensitive data', async () => {
     const user = await service.remove('123');
     expect(user).toEqual(travelByIdFiltering('123'));
   });
@@ -217,9 +205,7 @@ describe('TravelService', () => {
   });
 
   it('remove should throw NotFoundException', async () => {
-    jest
-      .spyOn(Travel, 'findOne')
-      .mockImplementation(async (options: any) => null);
+    jest.spyOn(Travel, 'findOne').mockImplementation(async () => null);
 
     await expect(async () => await service.remove('123')).rejects.toThrow(
       NotFoundException,

@@ -35,7 +35,7 @@ export class PostService {
         where: { id: travelId },
         relations: ['user'],
       });
-      if (!travel || !travel.user) throw new BadRequestException();
+      if (!travel || !travel.user) throw new NotFoundException();
 
       const post = new Post();
       post.title = createPostDto.title;
@@ -46,7 +46,6 @@ export class PostService {
       await post.save();
 
       post.travel = travel;
-      console.log(travel);
 
       if (file) {
         if (post.photoFn) {
@@ -85,7 +84,7 @@ export class PostService {
   }
 
   async findAllByTravelId(id: string): Promise<GetPostsResponse> {
-    if (!id) throw new BadRequestException();
+    if (!id) throw new Error('id is empty');
 
     const posts = await this.dataSource
       .createQueryBuilder()
@@ -110,7 +109,7 @@ export class PostService {
 
       const post = await this.findOneById(id);
       if (!post || !post.travel || !post.travel.user)
-        throw new BadRequestException();
+        throw new NotFoundException();
 
       post.title = updatePostDto.title ?? post.title;
       post.destination = updatePostDto.destination ?? post.destination;
@@ -140,7 +139,6 @@ export class PostService {
 
       return this.filter(post);
     } catch (e) {
-      console.log(file);
       if (file) await FileManagementPost.removeFromTmp(file.filename);
       throw e;
     }
@@ -180,18 +178,22 @@ export class PostService {
     return createReadStream(FileManagement.storageDir('no-image.png'));
   }
 
-  async findOneById(postId: string) {
+  async findOneById(id: string) {
+    if (!id) throw new Error('postId is empty');
+
     return this.dataSource
       .createQueryBuilder()
       .select(['post', 'travel.id', 'user.id'])
       .from(Post, 'post')
       .leftJoin('post.travel', 'travel')
       .leftJoin('travel.user', 'user')
-      .where('`post`.`id`=:id', { id: postId })
+      .where('`post`.`id`=:id', { id })
       .getOne();
   }
 
   async getCountByUserId(id: string): Promise<number> {
+    if (!id) throw new BadRequestException();
+
     return Post.count({
       where: { travel: { user: { id } } },
     });
