@@ -22,6 +22,7 @@ import {
   CreateTravelResponse,
   CreateUserResponse,
   DeleteUserResponse,
+  GetFriendsResponse,
   GetTravelsResponse,
   GetUserResponse,
   GetUserStatsResponse,
@@ -124,7 +125,7 @@ export class UserController {
     @Query('waiting') waiting: boolean,
     @Query('accepted') accepted: boolean,
     @Query('invitation') invitation: boolean,
-  ) {
+  ): Promise<GetFriendsResponse> {
     return this.friendService.findAllByUserId(id, {
       waiting,
       accepted,

@@ -14,12 +14,6 @@ export class Friend extends BaseEntity implements FriendInterface {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-  @Column({
-    type: 'datetime',
-    default: () => 'current_timestamp',
-  })
-  public createdAt: Date;
-
   @ManyToOne((type) => User, (user) => user.friends)
   @JoinTable()
   public user: User;

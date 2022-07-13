@@ -2,7 +2,6 @@ import { User } from '../../models/user/entities/user.entity';
 
 export interface FriendInterface {
   id: string;
-  createdAt: Date;
   user: User;
   friend: User;
   status: FriendStatus;

@@ -1,16 +1,16 @@
 import {
   BadRequestException,
   ConflictException,
-  Inject,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateFriendDto } from './dto/create-friend.dto';
-import { UpdateFriendDto } from './dto/update-friend.dto';
 import {
   CreateFriendResponse,
   FriendSaveResponseData,
   FriendStatus,
+  GetFriendsResponse,
 } from '../../types';
 import { Friend } from './entities/friend.entity';
 import { User } from '../user/entities/user.entity';
@@ -52,10 +52,13 @@ export class FriendService {
     return this.filter(friendship);
   }
 
-  async findAllByUserId(id: string, statusObj: statusObj) {
+  async findAllByUserId(
+    id: string,
+    statusObj?: statusObj,
+  ): Promise<GetFriendsResponse> {
     if (!id) throw new BadRequestException();
 
-    const activeStatus = Object.entries(statusObj)
+    const activeStatus = Object.entries(statusObj ?? {})
       .filter((e) => e[1])
       .map((e) => e[0]);
 
@@ -82,12 +85,32 @@ export class FriendService {
     return friendship.map((e) => this.filter(e));
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} friend`;
-  }
+  async update(id: string) {
+    if (!id) throw new BadRequestException();
 
-  update(id: number, updateFriendDto: UpdateFriendDto) {
-    return `This action updates a #${id} friend`;
+    const friendship = await Friend.findOne({
+      where: { id },
+      relations: ['user', 'friend'],
+    });
+
+    if (!friendship || !friendship.user || !friendship.friend)
+      throw new NotFoundException();
+
+    if (friendship.status !== FriendStatus.Invitation)
+      throw new ForbiddenException();
+
+    const { friendshipUser, friendshipFriend } =
+      await this.getFriendshipTwoSite(friendship.user.id, friendship.friend.id);
+
+    if (!friendship) throw new NotFoundException();
+
+    friendshipUser.status = FriendStatus.Accepted;
+    friendshipFriend.status = FriendStatus.Accepted;
+
+    await friendshipUser.save();
+    await friendshipFriend.save();
+
+    return this.filter(friendship);
   }
 
   remove(id: number) {
@@ -101,14 +124,14 @@ export class FriendService {
   async getFriendshipTwoSite(userId: string, friendId: string) {
     if (!userId || !friendId) throw new Error('userId or friendId is empty');
 
-    const friendship = await Friend.findOne({
+    const friendshipUser = await Friend.findOne({
       where: {
         user: { id: userId },
         friend: { id: friendId },
       },
     });
 
-    const friendshipRevert = await Friend.findOne({
+    const friendshipFriend = await Friend.findOne({
       where: {
         user: { id: friendId },
         friend: { id: userId },
@@ -116,17 +139,17 @@ export class FriendService {
     });
 
     if (
-      (!friendship && friendshipRevert) ||
-      (friendship && !friendshipRevert)
+      (!friendshipUser && friendshipFriend) ||
+      (friendshipUser && !friendshipFriend)
     ) {
       throw new Error(
-        `incomplete friendship ${friendship?.id} - ${friendshipRevert?.id}`,
+        `incomplete friendship ${friendshipUser?.id} - ${friendshipFriend?.id}`,
       );
     }
 
-    if (!friendship && !friendshipRevert) return null;
+    if (!friendshipUser && !friendshipFriend) return null;
 
-    return { friendship, friendshipRevert };
+    return { friendshipUser, friendshipFriend };
   }
 
   filter(friendship: Friend): FriendSaveResponseData {
