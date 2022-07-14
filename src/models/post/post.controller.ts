@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
@@ -12,14 +11,9 @@ import {
   Header,
 } from '@nestjs/common';
 import { PostService } from './post.service';
-import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { Multer } from 'multer';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UserObj } from '../../common/decorators/user.decorator';
-import { User } from '../user/entities/user.entity';
-import { TravelOwnerGuard } from '../../common/guards/travel-owner.guard';
 import { ReadStream } from 'fs';
 import { PostOwnerGuard } from '../../common/guards/post-owner.guard';
 
@@ -29,7 +23,7 @@ export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Get('/:id')
-  @UseGuards(PostOwnerGuard)
+  @UseGuards() //guard znajomi
   findOne(@Param('id') id: string) {
     return this.postService.findOne(id);
   }
@@ -52,7 +46,7 @@ export class PostController {
   }
 
   @Get('/photo/:id')
-  @UseGuards(PostOwnerGuard)
+  @UseGuards() //guard znajomi
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(@Param('id') id: string): Promise<ReadStream> {

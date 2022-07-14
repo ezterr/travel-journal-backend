@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { MulterModule } from '@nestjs/platform-express';
@@ -15,7 +15,7 @@ import { FriendModule } from '../friend/friend.module';
     }),
     TravelModule,
     PostModule,
-    FriendModule,
+    forwardRef(() => FriendModule),
   ],
   controllers: [UserController],
   providers: [UserService],

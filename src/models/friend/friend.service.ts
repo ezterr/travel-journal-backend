@@ -2,19 +2,24 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateFriendDto } from './dto/create-friend.dto';
 import {
   CreateFriendResponse,
+  DeleteFriendResponse,
   FriendSaveResponseData,
   FriendStatus,
   GetFriendsResponse,
+  UpdateFriendResponse,
 } from '../../types';
 import { Friend } from './entities/friend.entity';
 import { User } from '../user/entities/user.entity';
 import { DataSource } from 'typeorm';
+import { UserService } from '../user/user.service';
 
 interface statusObj {
   waiting?: boolean;
@@ -22,9 +27,14 @@ interface statusObj {
   invitation?: boolean;
 }
 
+type friendshipTwoSite = { friendshipUser: Friend; friendshipFriend: Friend };
+
 @Injectable()
 export class FriendService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    @Inject(forwardRef(() => DataSource)) private readonly dataSource: DataSource,
+    @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
+  ) {}
 
   async create(userId: string, { friendId }: CreateFriendDto): Promise<CreateFriendResponse> {
     const friendshipExist = await this.checkFriendshipExist(userId, friendId);
@@ -60,7 +70,7 @@ export class FriendService {
     if (activeStatus.length > 0) {
       friendship = await this.dataSource
         .createQueryBuilder()
-        .select(['friendship', 'friend.id', 'user.id'])
+        .select(['friendship', 'friend', 'user'])
         .from(Friend, 'friendship')
         .leftJoin('friendship.user', 'user')
         .leftJoin('friendship.friend', 'friend')
@@ -79,7 +89,7 @@ export class FriendService {
     return friendship.map((e) => this.filter(e));
   }
 
-  async update(id: string) {
+  async update(id: string): Promise<UpdateFriendResponse> {
     if (!id) throw new BadRequestException();
 
     const { friendshipUser, friendshipFriend } = await this.getFriendshipTwoSiteById(id);
@@ -96,7 +106,7 @@ export class FriendService {
     return this.filter(friendshipUser);
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<DeleteFriendResponse> {
     if (!id) throw new BadRequestException();
 
     const { friendshipUser, friendshipFriend } = await this.getFriendshipTwoSiteById(id);
@@ -107,11 +117,11 @@ export class FriendService {
     return this.filter(friendshipUser);
   }
 
-  async checkFriendshipExist(userId: string, friendId: string) {
+  async checkFriendshipExist(userId: string, friendId: string): Promise<boolean> {
     return !!(await this.getFriendshipTwoSite(userId, friendId));
   }
 
-  async getFriendshipTwoSite(userId: string, friendId: string) {
+  async getFriendshipTwoSite(userId: string, friendId: string): Promise<friendshipTwoSite> {
     if (!userId || !friendId) throw new Error('userId or friendId is empty');
 
     const friendshipUser = await Friend.findOne({
@@ -138,7 +148,7 @@ export class FriendService {
     return { friendshipUser, friendshipFriend };
   }
 
-  async getFriendshipTwoSiteById(id: string) {
+  async getFriendshipTwoSiteById(id: string): Promise<friendshipTwoSite> {
     if (!id) throw new BadRequestException();
 
     const friendship = await Friend.findOne({
@@ -157,7 +167,7 @@ export class FriendService {
     return {
       ...friendshipResponse,
       userId: user.id,
-      friendId: friend.id,
+      friend: this.userService.filterPublicData(friend),
     };
   }
 }

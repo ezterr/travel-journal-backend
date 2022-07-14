@@ -1,6 +1,8 @@
 import {
   BadRequestException,
   ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -32,9 +34,9 @@ import { FriendService } from '../friend/friend.service';
 @Injectable()
 export class UserService {
   constructor(
-    private readonly travelService: TravelService,
-    private readonly postService: PostService,
-    private readonly friendService: FriendService,
+    @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
+    @Inject(forwardRef(() => PostService)) private readonly postService: PostService,
+    @Inject(forwardRef(() => FriendService)) private readonly friendService: FriendService,
   ) {}
 
   async create(
@@ -83,7 +85,7 @@ export class UserService {
     search: string,
     withFriends: boolean,
   ): Promise<GetUserSearchResponse> {
-    if (!search) return [];
+    if (!search || search.length < 2) return [];
 
     const users = await User.find({
       where: {
@@ -96,7 +98,7 @@ export class UserService {
       return users.map((e) => this.filterPublicData(e));
     }
 
-    const friends = (await this.friendService.findAllByUserId(id)).map((e) => e.friendId);
+    const friends = (await this.friendService.findAllByUserId(id)).map((e) => e.friend.id);
 
     return users.filter((e) => !friends.includes(e.id)).map((e) => this.filterPublicData(e));
   }

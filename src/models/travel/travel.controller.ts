@@ -14,25 +14,19 @@ import {
   HttpCode,
 } from '@nestjs/common';
 import { TravelService } from './travel.service';
-import { CreateTravelDto } from './dto/create-travel.dto';
 import { UpdateTravelDto } from './dto/update-travel.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import {
   CreatePostResponse,
-  CreateTravelResponse,
   DeleteTravelResponse,
   GetPostsResponse,
   GetTravelResponse,
   UpdateTravelResponse,
 } from '../../types';
-import { UserObj } from '../../common/decorators/user.decorator';
-import { User } from '../user/entities/user.entity';
 import { TravelOwnerGuard } from '../../common/guards/travel-owner.guard';
 import { ReadStream } from 'fs';
-import { Travel } from './entities/travel.entity';
-import { use } from 'passport';
 import { CreatePostDto } from '../post/dto/create-post.dto';
 import { PostService } from '../post/post.service';
 
@@ -45,7 +39,7 @@ export class TravelController {
   ) {}
 
   @Get('/:id')
-  @UseGuards(TravelOwnerGuard)
+  @UseGuards() //guar przyjaciele
   async findOne(@Param('id') id: string): Promise<GetTravelResponse> {
     return this.travelService.findOne(id);
   }
@@ -68,7 +62,7 @@ export class TravelController {
   }
 
   @Get('/photo/:id')
-  @UseGuards(TravelOwnerGuard)
+  @UseGuards() //guard znajomi
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(@Param('id') id: string): Promise<ReadStream> {
@@ -87,7 +81,7 @@ export class TravelController {
   }
 
   @Get('/:id/post')
-  @UseGuards(TravelOwnerGuard)
+  @UseGuards() //guard znajomi
   async findAllPosts(@Param('id') id: string): Promise<GetPostsResponse> {
     return this.postService.findAllByTravelId(id);
   }

@@ -1,4 +1,4 @@
-import { UserInterface } from '../user';
+import { UserInterface, UserPublicDataInterface } from '../user';
 
 export interface FriendInterface {
   id: string;
@@ -15,5 +15,5 @@ export enum FriendStatus {
 
 export type FriendSaveResponseData = Omit<FriendInterface, 'user' | 'friend'> & {
   userId: string;
-  friendId: string;
+  friend: UserPublicDataInterface;
 };
