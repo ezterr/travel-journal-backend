@@ -1,9 +1,9 @@
-import { User } from '../../models/user/entities/user.entity';
+import { UserInterface } from '../user';
 
 export interface FriendInterface {
   id: string;
-  user: User;
-  friend: User;
+  user: UserInterface;
+  friend: UserInterface;
   status: FriendStatus;
 }
 

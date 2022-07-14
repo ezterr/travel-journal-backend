@@ -79,15 +79,15 @@ export class UserService {
   }
 
   async searchUser(
-    id: string,
+    id: string | undefined,
     search: string,
     withFriends: boolean,
   ): Promise<GetUserSearchResponse> {
-    if (!id) throw new BadRequestException();
+    if (!search) return [];
 
     const users = await User.find({
       where: {
-        id: Not(id),
+        id: Not(id ?? ''),
         username: Like(`%${search ?? ''}%`),
       },
     });

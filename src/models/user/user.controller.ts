@@ -95,7 +95,7 @@ export class UserController {
   }
 
   @Get('/photo/:id')
-  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
+  @UseGuards(JwtAuthGuard)
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(@Param('id') id: string): Promise<ReadStream> {
