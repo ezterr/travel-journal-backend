@@ -10,7 +10,6 @@ import {
   UseInterceptors,
   Header,
   UploadedFile,
-  HttpCode,
   Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
@@ -34,9 +33,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { TravelService } from '../travel/travel.service';
 import { CreateTravelDto } from '../travel/dto/create-travel.dto';
 import { CreateFriendDto } from '../friend/dto/create-friend.dto';
-import { CreateFriendResponse } from '../../types/friend/friend-response';
+import { CreateFriendResponse } from '../../types';
 import { FriendService } from '../friend/friend.service';
-import { User } from './entities/user.entity';
 
 @Controller('/api/user')
 export class UserController {
@@ -59,6 +57,12 @@ export class UserController {
   @UseGuards(JwtAuthGuard, AccountOwnerGuard)
   async findOne(@Param('id') id: string): Promise<GetUserResponse> {
     return this.userService.findOne(id);
+  }
+
+  @Get('/:id/search')
+  @UseGuards(JwtAuthGuard)
+  async searchUser(@Query('search') search: string, @Query('friends') friends: boolean) {
+    return this.userService.searchUser();
   }
 
   @Delete('/:id')

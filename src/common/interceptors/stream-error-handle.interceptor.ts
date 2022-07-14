@@ -12,10 +12,7 @@ import { ReadStream } from 'fs';
 
 @Injectable()
 export class StreamErrorHandleInterceptor implements NestInterceptor {
-  async intercept(
-    context: ExecutionContext,
-    next: CallHandler<any>,
-  ): Promise<Observable<any>> {
+  async intercept(context: ExecutionContext, next: CallHandler<any>): Promise<Observable<any>> {
     const res = context.switchToHttp().getResponse() as Response;
 
     return next.handle().pipe(

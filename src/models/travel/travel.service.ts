@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateTravelDto } from './dto/create-travel.dto';
 import { UpdateTravelDto } from './dto/update-travel.dto';
 import {
@@ -42,9 +38,7 @@ export class TravelService {
       travel.startAt = new Date(createTravelDto.startAt) ?? travel.startAt;
       travel.endAt = new Date(createTravelDto.endAt) ?? travel.endAt;
 
-      if (
-        new Date(travel.startAt).getTime() > new Date(travel.endAt).getTime()
-      ) {
+      if (new Date(travel.startAt).getTime() > new Date(travel.endAt).getTime()) {
         throw new BadRequestException();
       }
 
@@ -53,18 +47,10 @@ export class TravelService {
 
       if (file) {
         if (travel.photoFn) {
-          await FileManagementTravel.removeTravelPhoto(
-            user.id,
-            travel.id,
-            travel.photoFn,
-          );
+          await FileManagementTravel.removeTravelPhoto(user.id, travel.id, travel.photoFn);
         }
 
-        const newFile = await FileManagementTravel.saveTravelPhoto(
-          user.id,
-          travel.id,
-          file,
-        );
+        const newFile = await FileManagementTravel.saveTravelPhoto(user.id, travel.id, file);
         await FileManagementPost.removeFromTmp(file.filename);
         travel.photoFn = newFile.filename;
       }
@@ -119,31 +105,20 @@ export class TravelService {
       travel.title = updateTravelDto.title ?? travel.title;
       travel.description = updateTravelDto.description ?? travel.description;
       travel.destination = updateTravelDto.destination ?? travel.destination;
-      travel.comradesCount =
-        updateTravelDto.comradesCount ?? travel.comradesCount;
+      travel.comradesCount = updateTravelDto.comradesCount ?? travel.comradesCount;
       travel.startAt = new Date(updateTravelDto.startAt) ?? travel.startAt;
       travel.endAt = new Date(updateTravelDto.endAt) ?? travel.endAt;
 
-      if (
-        new Date(travel.startAt).getTime() > new Date(travel.endAt).getTime()
-      ) {
+      if (new Date(travel.startAt).getTime() > new Date(travel.endAt).getTime()) {
         throw new BadRequestException();
       }
 
       if (file) {
         if (travel.photoFn) {
-          await FileManagementTravel.removeTravelPhoto(
-            travel.user.id,
-            travel.id,
-            travel.photoFn,
-          );
+          await FileManagementTravel.removeTravelPhoto(travel.user.id, travel.id, travel.photoFn);
         }
 
-        const newFile = await FileManagementTravel.saveTravelPhoto(
-          travel.user.id,
-          travel.id,
-          file,
-        );
+        const newFile = await FileManagementTravel.saveTravelPhoto(travel.user.id, travel.id, file);
         await FileManagementPost.removeFromTmp(file.filename);
 
         travel.photoFn = newFile.filename;

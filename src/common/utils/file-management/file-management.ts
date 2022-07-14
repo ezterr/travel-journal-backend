@@ -39,10 +39,7 @@ export class FileManagement {
     }
   }
 
-  static async convertToWebp(
-    file: Express.Multer.File,
-    saveDir?: string,
-  ): Promise<WebpFile> {
+  static async convertToWebp(file: Express.Multer.File, saveDir?: string): Promise<WebpFile> {
     const fileParse = path.parse(file.path);
     const newFilename = fileParse.name + '.webp';
     const newDirname = saveDir || fileParse.dir;
@@ -53,9 +50,7 @@ export class FileManagement {
     const newWidth = 1000;
     const newHeight = parseInt((width * proportions).toFixed(0));
 
-    const imageConverter = sharp()
-      .resize(newWidth, newHeight, { fit: 'cover' })
-      .webp();
+    const imageConverter = sharp().resize(newWidth, newHeight, { fit: 'cover' }).webp();
 
     const readableStream = createReadStream(file.path);
     const writeStream = createWriteStream(newPath);

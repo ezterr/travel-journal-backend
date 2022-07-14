@@ -61,13 +61,9 @@ describe('TravelService', () => {
       .spyOn(User, 'findOne')
       .mockImplementation(async (options: any) => userById(options.where.id));
 
-    jest
-      .spyOn(Travel.prototype, 'save')
-      .mockImplementation(async () => travelById('123'));
+    jest.spyOn(Travel.prototype, 'save').mockImplementation(async () => travelById('123'));
 
-    jest
-      .spyOn(Travel.prototype, 'remove')
-      .mockImplementation(async () => travelById('123'));
+    jest.spyOn(Travel.prototype, 'remove').mockImplementation(async () => travelById('123'));
 
     service = module.get<TravelService>(TravelService);
   });
@@ -82,17 +78,13 @@ describe('TravelService', () => {
   });
 
   it('findOne should throw BadRequestError', async () => {
-    await expect(async () => await service.findOne('')).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(async () => await service.findOne('')).rejects.toThrow(BadRequestException);
   });
 
   it('findOne should throw NotFoundException', async () => {
     jest.spyOn(Travel, 'findOne').mockImplementation(async () => null);
 
-    await expect(async () => await service.findOne('1234')).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(async () => await service.findOne('1234')).rejects.toThrow(NotFoundException);
   });
 
   it('findOne should join user to travel', async () => {
@@ -109,17 +101,17 @@ describe('TravelService', () => {
   });
 
   it('create should throw BadRequestException if userId is empty or startAt is bigger than endAt', async () => {
-    await expect(async () =>
-      service.create(new CreateTravelDto(), '', undefined),
-    ).rejects.toThrow(BadRequestException);
+    await expect(async () => service.create(new CreateTravelDto(), '', undefined)).rejects.toThrow(
+      BadRequestException,
+    );
 
     const createTravelDtoMock = new CreateTravelDto();
     createTravelDtoMock.startAt = '2022-07-09';
     createTravelDtoMock.endAt = '2022-07-03';
 
-    await expect(async () =>
-      service.create(createTravelDtoMock, '123', undefined),
-    ).rejects.toThrow(BadRequestException);
+    await expect(async () => service.create(createTravelDtoMock, '123', undefined)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('create should throw NotFoundException if user not found', async () => {
@@ -131,11 +123,7 @@ describe('TravelService', () => {
   });
 
   it('create should return travel', async () => {
-    const travel = await service.create(
-      new CreateTravelDto(),
-      '123',
-      undefined,
-    );
+    const travel = await service.create(new CreateTravelDto(), '123', undefined);
 
     expect(travel).toBeDefined();
   });
@@ -174,21 +162,13 @@ describe('TravelService', () => {
       return travelById('123');
     });
 
-    const travel = await service.update(
-      '123',
-      new UpdateTravelDto(),
-      undefined,
-    );
+    const travel = await service.update('123', new UpdateTravelDto(), undefined);
 
     expect(travel).not.toBe(undefined);
   });
 
   it('update should return travel', async () => {
-    const travel = await service.update(
-      '123',
-      new UpdateTravelDto(),
-      undefined,
-    );
+    const travel = await service.update('123', new UpdateTravelDto(), undefined);
 
     expect(travel).toEqual(travelByIdFiltering('123'));
   });
@@ -199,43 +179,30 @@ describe('TravelService', () => {
   });
   //
   it('remove should throw BadRequestException', async () => {
-    await expect(async () => await service.remove('')).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(async () => await service.remove('')).rejects.toThrow(BadRequestException);
   });
 
   it('remove should throw NotFoundException', async () => {
     jest.spyOn(Travel, 'findOne').mockImplementation(async () => null);
 
-    await expect(async () => await service.remove('123')).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(async () => await service.remove('123')).rejects.toThrow(NotFoundException);
   });
 
   it('getPhoto should throw BadRequestException', async () => {
-    await expect(async () => await service.getPhoto('')).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(async () => await service.getPhoto('')).rejects.toThrow(BadRequestException);
   });
 
   it('getCountByUserId if id is empty throw BadRequestException', async () => {
-    await expect(async () => service.getCountByUserId('')).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(async () => service.getCountByUserId('')).rejects.toThrow(BadRequestException);
   });
 
   it('findAllByUserId if id is empty throw BadRequestException', async () => {
-    await expect(async () => service.findAllByUserId('')).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(async () => service.findAllByUserId('')).rejects.toThrow(BadRequestException);
   });
 
   it('findAllByUserId travel must join user and order by startAt: "DESC"', async () => {
     jest.spyOn(Travel, 'find').mockImplementation(async (options: any) => {
-      if (
-        options.relations.includes('user') &&
-        options.order?.startAt === 'DESC'
-      ) {
+      if (options.relations.includes('user') && options.order?.startAt === 'DESC') {
         return [
           travelById('123', {
             user: { id: options.where.user?.id } as any,

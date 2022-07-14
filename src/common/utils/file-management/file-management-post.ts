@@ -14,11 +14,7 @@ export class FileManagementPost extends FileManagement {
     return this.convertToWebp(file, postDir);
   }
 
-  static async removePostPhoto(
-    userId: string,
-    travelId: string,
-    photoName: string,
-  ) {
+  static async removePostPhoto(userId: string, travelId: string, photoName: string) {
     const filePath = join(this.getPostDirPath(userId, travelId), photoName);
 
     try {

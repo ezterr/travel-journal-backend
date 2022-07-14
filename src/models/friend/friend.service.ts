@@ -26,10 +26,7 @@ interface statusObj {
 export class FriendService {
   constructor(private readonly dataSource: DataSource) {}
 
-  async create(
-    userId: string,
-    { friendId }: CreateFriendDto,
-  ): Promise<CreateFriendResponse> {
+  async create(userId: string, { friendId }: CreateFriendDto): Promise<CreateFriendResponse> {
     const friendshipExist = await this.checkFriendshipExist(userId, friendId);
     if (friendshipExist) throw new ConflictException();
 
@@ -52,10 +49,7 @@ export class FriendService {
     return this.filter(friendship);
   }
 
-  async findAllByUserId(
-    id: string,
-    statusObj?: statusObj,
-  ): Promise<GetFriendsResponse> {
+  async findAllByUserId(id: string, statusObj?: statusObj): Promise<GetFriendsResponse> {
     if (!id) throw new BadRequestException();
 
     const activeStatus = Object.entries(statusObj ?? {})
@@ -88,13 +82,10 @@ export class FriendService {
   async update(id: string) {
     if (!id) throw new BadRequestException();
 
-    const { friendshipUser, friendshipFriend } =
-      await this.getFriendshipTwoSiteById(id);
+    const { friendshipUser, friendshipFriend } = await this.getFriendshipTwoSiteById(id);
 
     if (!friendshipUser || !friendshipFriend) throw new NotFoundException();
-
-    if (friendshipUser.status !== FriendStatus.Invitation)
-      throw new ForbiddenException();
+    if (friendshipUser.status !== FriendStatus.Invitation) throw new ForbiddenException();
 
     friendshipUser.status = FriendStatus.Accepted;
     friendshipFriend.status = FriendStatus.Accepted;
@@ -108,8 +99,7 @@ export class FriendService {
   async remove(id: string) {
     if (!id) throw new BadRequestException();
 
-    const { friendshipUser, friendshipFriend } =
-      await this.getFriendshipTwoSiteById(id);
+    const { friendshipUser, friendshipFriend } = await this.getFriendshipTwoSiteById(id);
 
     if (friendshipUser) await friendshipUser.remove();
     if (friendshipFriend) await friendshipFriend.remove();
@@ -139,13 +129,8 @@ export class FriendService {
       },
     });
 
-    if (
-      (!friendshipUser && friendshipFriend) ||
-      (friendshipUser && !friendshipFriend)
-    ) {
-      throw new Error(
-        `incomplete friendship ${friendshipUser?.id} - ${friendshipFriend?.id}`,
-      );
+    if ((!friendshipUser && friendshipFriend) || (friendshipUser && !friendshipFriend)) {
+      throw new Error(`incomplete friendship ${friendshipUser?.id} - ${friendshipFriend?.id}`);
     }
 
     if (!friendshipUser && !friendshipFriend) return null;
@@ -161,8 +146,7 @@ export class FriendService {
       relations: ['user', 'friend'],
     });
 
-    if (!friendship || !friendship.user || !friendship.friend)
-      throw new NotFoundException();
+    if (!friendship || !friendship.user || !friendship.friend) throw new NotFoundException();
 
     return this.getFriendshipTwoSite(friendship.user.id, friendship.friend.id);
   }

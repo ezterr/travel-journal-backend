@@ -13,10 +13,7 @@ export enum FriendStatus {
   Invitation = 'invitation',
 }
 
-export type FriendSaveResponseData = Omit<
-  FriendInterface,
-  'user' | 'friend'
-> & {
+export type FriendSaveResponseData = Omit<FriendInterface, 'user' | 'friend'> & {
   userId: string;
   friendId: string;
 };

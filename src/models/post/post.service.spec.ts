@@ -58,9 +58,7 @@ describe('PostService', () => {
     })
       .useMocker((token) => {
         if (typeof token === 'function') {
-          const mockMetadata = moduleMocker.getMetadata(
-            token,
-          ) as MockFunctionMetadata<any, any>;
+          const mockMetadata = moduleMocker.getMetadata(token) as MockFunctionMetadata<any, any>;
           const Mock = moduleMocker.generateFromMetadata(mockMetadata);
           return new Mock();
         }
@@ -75,13 +73,9 @@ describe('PostService', () => {
       .spyOn(Travel, 'findOne')
       .mockImplementation(async (options: any) => travelById(options.where.id));
 
-    jest
-      .spyOn(Post.prototype, 'save')
-      .mockImplementation(async () => postById('123'));
+    jest.spyOn(Post.prototype, 'save').mockImplementation(async () => postById('123'));
 
-    jest
-      .spyOn(Post.prototype, 'remove')
-      .mockImplementation(async () => postById('123'));
+    jest.spyOn(Post.prototype, 'remove').mockImplementation(async () => postById('123'));
 
     jest
       .spyOn(PostService.prototype, 'findOneById')
@@ -100,33 +94,27 @@ describe('PostService', () => {
   });
 
   it('findOne should throw BadRequestError', async () => {
-    await expect(async () => await service.findOne('')).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(async () => await service.findOne('')).rejects.toThrow(BadRequestException);
   });
 
   it('findOne should throw NotFoundException', async () => {
-    jest
-      .spyOn(PostService.prototype, 'findOneById')
-      .mockImplementation(async () => null);
+    jest.spyOn(PostService.prototype, 'findOneById').mockImplementation(async () => null);
 
-    await expect(async () => await service.findOne('1234')).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(async () => await service.findOne('1234')).rejects.toThrow(NotFoundException);
   });
 
   it('create should throw BadRequestException if travelId is empty', async () => {
-    await expect(async () =>
-      service.create('', new CreatePostDto(), undefined),
-    ).rejects.toThrow(BadRequestException);
+    await expect(async () => service.create('', new CreatePostDto(), undefined)).rejects.toThrow(
+      BadRequestException,
+    );
   });
 
   it('create should throw NotFoundException if travel not found', async () => {
     jest.spyOn(Travel, 'findOne').mockImplementation(async () => null);
 
-    await expect(async () =>
-      service.create('123', new CreatePostDto(), undefined),
-    ).rejects.toThrow(NotFoundException);
+    await expect(async () => service.create('123', new CreatePostDto(), undefined)).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('create should return post', async () => {
@@ -142,9 +130,7 @@ describe('PostService', () => {
   });
 
   it('update should throw NotFoundException', async () => {
-    jest
-      .spyOn(PostService.prototype, 'findOneById')
-      .mockImplementation(async () => null);
+    jest.spyOn(PostService.prototype, 'findOneById').mockImplementation(async () => null);
 
     await expect(
       async () => await service.update('123', new UpdatePostDto(), undefined),
@@ -175,31 +161,21 @@ describe('PostService', () => {
   });
 
   it('remove should throw BadRequestException', async () => {
-    await expect(async () => await service.remove('')).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(async () => await service.remove('')).rejects.toThrow(BadRequestException);
   });
 
   it('remove should throw NotFoundException', async () => {
-    jest
-      .spyOn(PostService.prototype, 'findOneById')
-      .mockImplementation(async () => null);
+    jest.spyOn(PostService.prototype, 'findOneById').mockImplementation(async () => null);
 
-    await expect(async () => await service.remove('123')).rejects.toThrow(
-      NotFoundException,
-    );
+    await expect(async () => await service.remove('123')).rejects.toThrow(NotFoundException);
   });
 
   it('getPhoto should throw BadRequestException', async () => {
-    await expect(async () => await service.getPhoto('')).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(async () => await service.getPhoto('')).rejects.toThrow(BadRequestException);
   });
 
   it('getCountByUserId if id is empty throw BadRequestException', async () => {
-    await expect(async () => service.getCountByUserId('')).rejects.toThrow(
-      BadRequestException,
-    );
+    await expect(async () => service.getCountByUserId('')).rejects.toThrow(BadRequestException);
   });
 
   it('findAllByTravelId if id is empty throw BadRequestException', async () => {

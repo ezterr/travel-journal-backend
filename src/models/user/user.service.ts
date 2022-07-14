@@ -73,6 +73,10 @@ export class UserService {
     }
   }
 
+  searchUser() {
+    throw new Error('Method not implemented.');
+  }
+
   async findOne(id: string): Promise<GetUserResponse> {
     if (!id) throw new BadRequestException();
 
@@ -99,10 +103,7 @@ export class UserService {
 
       if (updateUserDto.newPassword) {
         if (updateUserDto.password) {
-          const hashCompareResult = await compare(
-            updateUserDto.password,
-            user.hashPwd,
-          );
+          const hashCompareResult = await compare(updateUserDto.password, user.hashPwd);
 
           if (hashCompareResult) {
             user.hashPwd = await createHashPwd(updateUserDto.newPassword);
@@ -167,9 +168,7 @@ export class UserService {
     return createReadStream(FileManagement.storageDir('user.png'));
   }
 
-  async checkUserFieldUniquenessAndThrow(value: {
-    [key: string]: any;
-  }): Promise<void> {
+  async checkUserFieldUniquenessAndThrow(value: { [key: string]: any }): Promise<void> {
     const user = await User.findOne({
       where: value,
     });
@@ -178,9 +177,7 @@ export class UserService {
     if (user) throw new ConflictException(`${key} is not unique`);
   }
 
-  async checkUserFieldUniqueness(value: {
-    [key: string]: any;
-  }): Promise<boolean> {
+  async checkUserFieldUniqueness(value: { [key: string]: any }): Promise<boolean> {
     const user = await User.findOne({
       where: value,
     });

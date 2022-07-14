@@ -13,10 +13,7 @@ export class FileManagementUser extends FileManagement {
     }
   }
 
-  static async saveUserPhoto(
-    userId: string,
-    file: Express.Multer.File,
-  ): Promise<WebpFile> {
+  static async saveUserPhoto(userId: string, file: Express.Multer.File): Promise<WebpFile> {
     const userDir = this.getUserDirPath(userId);
     await this.createUserDir(userId);
 

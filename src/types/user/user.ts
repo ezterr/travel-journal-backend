@@ -10,6 +10,13 @@ export interface UserInterface {
   jwtId: string;
 }
 
+export interface UserPublicDataInterface {
+  id: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+}
+
 export type UserSaveData = Omit<UserInterface, 'hashPwd'>;
 export type UserSaveResponseData = Omit<UserSaveData, 'photoFn' | 'jwtId'> & {
   avatar: string;

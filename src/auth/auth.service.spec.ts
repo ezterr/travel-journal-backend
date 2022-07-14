@@ -57,9 +57,7 @@ describe('AuthService', () => {
           };
         }
         if (typeof token === 'function') {
-          const mockMetadata = moduleMocker.getMetadata(
-            token,
-          ) as MockFunctionMetadata<any, any>;
+          const mockMetadata = moduleMocker.getMetadata(token) as MockFunctionMetadata<any, any>;
           const Mock = moduleMocker.generateFromMetadata(mockMetadata);
           return new Mock();
         }
@@ -98,9 +96,7 @@ describe('AuthService', () => {
   });
 
   it('login should return user without sensitive data', async () => {
-    jest
-      .spyOn(User.prototype, 'save')
-      .mockImplementation(async () => userById('123'));
+    jest.spyOn(User.prototype, 'save').mockImplementation(async () => userById('123'));
     const user = userById('123');
     const loginUser = await service.login(user, responseMock);
 
@@ -118,9 +114,7 @@ describe('AuthService', () => {
     expect(responseMock.cookieValue).toBeDefined();
     expect(responseMock.cookieOptions.secure).toBe(false);
     expect(responseMock.cookieOptions.httpOnly).toBe(true);
-    expect(responseMock.cookieOptions.maxAge).toBe(
-      config.jwtCookieTimeToExpire,
-    );
+    expect(responseMock.cookieOptions.maxAge).toBe(config.jwtCookieTimeToExpire);
     expect(responseMock.cookieOptions.domain).toBe(config.jwtCookieDomain);
   });
 

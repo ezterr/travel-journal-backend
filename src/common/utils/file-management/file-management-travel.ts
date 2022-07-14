@@ -23,11 +23,7 @@ export class FileManagementTravel extends FileManagement {
     return this.convertToWebp(file, travelDir);
   }
 
-  static async removeTravelPhoto(
-    userId: string,
-    travelId: string,
-    photoName: string,
-  ) {
+  static async removeTravelPhoto(userId: string, travelId: string, photoName: string) {
     const filePath = join(this.getTravelDirPath(userId, travelId), photoName);
 
     try {

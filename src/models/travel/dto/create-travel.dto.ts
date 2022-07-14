@@ -1,11 +1,4 @@
-import {
-  IsDateString,
-  IsInt,
-  IsString,
-  Length,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsDateString, IsInt, IsString, Length, Max, Min } from 'class-validator';
 import { CreateTravelDtoInterface } from '../../../types';
 
 export class CreateTravelDto implements CreateTravelDtoInterface {

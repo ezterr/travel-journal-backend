@@ -9,14 +9,7 @@ import { PostModule } from './models/post/post.module';
 import { FriendModule } from './models/friend/friend.module';
 
 @Module({
-  imports: [
-    AuthModule,
-    UserModule,
-    DatabaseModule,
-    TravelModule,
-    PostModule,
-    FriendModule,
-  ],
+  imports: [AuthModule, UserModule, DatabaseModule, TravelModule, PostModule, FriendModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -3,10 +3,7 @@ import { CreatePostDto } from './create-post.dto';
 import { IsString, Length } from 'class-validator';
 import { UpdatePostDtoInterface } from '../../../types';
 
-export class UpdatePostDto
-  extends PartialType(CreatePostDto)
-  implements UpdatePostDtoInterface
-{
+export class UpdatePostDto extends PartialType(CreatePostDto) implements UpdatePostDtoInterface {
   @IsString()
   @Length(2, 128)
   public title: string;

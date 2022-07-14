@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Inject,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import {
@@ -49,17 +44,9 @@ export class PostService {
 
       if (file) {
         if (post.photoFn) {
-          await FileManagementPost.removePostPhoto(
-            travel.user.id,
-            travel.id,
-            post.photoFn,
-          );
+          await FileManagementPost.removePostPhoto(travel.user.id, travel.id, post.photoFn);
         }
-        const newFile = await FileManagementPost.savePostPhoto(
-          travel.user.id,
-          travel.id,
-          file,
-        );
+        const newFile = await FileManagementPost.savePostPhoto(travel.user.id, travel.id, file);
         await FileManagementPost.removeFromTmp(file.filename);
 
         post.photoFn = newFile.filename;
@@ -99,17 +86,12 @@ export class PostService {
     return posts.map((e) => this.filter(e));
   }
 
-  async update(
-    id: string,
-    updatePostDto: UpdatePostDto,
-    file: Express.Multer.File,
-  ) {
+  async update(id: string, updatePostDto: UpdatePostDto, file: Express.Multer.File) {
     try {
       if (!id) throw new BadRequestException();
 
       const post = await this.findOneById(id);
-      if (!post || !post.travel || !post.travel.user)
-        throw new NotFoundException();
+      if (!post || !post.travel || !post.travel.user) throw new NotFoundException();
 
       post.title = updatePostDto.title ?? post.title;
       post.destination = updatePostDto.destination ?? post.destination;
@@ -148,15 +130,10 @@ export class PostService {
     if (!id) throw new BadRequestException();
 
     const post = await this.findOneById(id);
-    if (!post || !post.travel || !post.travel.user)
-      throw new NotFoundException();
+    if (!post || !post.travel || !post.travel.user) throw new NotFoundException();
 
     if (post.photoFn)
-      await FileManagementPost.removePostPhoto(
-        post.travel.user.id,
-        post.travel.id,
-        post.photoFn,
-      );
+      await FileManagementPost.removePostPhoto(post.travel.user.id, post.travel.id, post.photoFn);
     await post.remove();
 
     return this.filter(post);
