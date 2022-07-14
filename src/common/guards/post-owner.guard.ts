@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { Request } from 'express';
 import { User } from '../../models/user/entities/user.entity';
-import { Travel } from '../../models/travel/entities/travel.entity';
 import { DataSource } from 'typeorm';
 import { Post } from '../../models/post/entities/post.entity';
 
@@ -28,6 +27,7 @@ export class PostOwnerGuard implements CanActivate {
       .from(Post, 'post')
       .leftJoin('post.travel', 'travel')
       .leftJoin('travel.user', 'user')
+      .where('`post`.`id`=:postId', { postId })
       .getOne();
 
     if (!postSimple) throw new NotFoundException();

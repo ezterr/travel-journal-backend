@@ -26,6 +26,7 @@ export class TravelOwnerGuard implements CanActivate {
       .select(['travel.id', 'user.id'])
       .from(Travel, 'travel')
       .leftJoin('travel.user', 'user')
+      .where('`travel`.`id`=:travelId', { travelId })
       .getOne();
 
     if (!travel) throw new NotFoundException();
