@@ -9,6 +9,8 @@ import {
   UseGuards,
   UseInterceptors,
   Header,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PostService } from './post.service';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -16,11 +18,12 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ReadStream } from 'fs';
 import { PostOwnerGuard } from '../../common/guards/post-owner.guard';
+import { TravelService } from '../travel/travel.service';
 
 @Controller('/api/post')
 @UseGuards(JwtAuthGuard)
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(@Inject(forwardRef(() => PostService)) private readonly postService: PostService) {}
 
   @Get('/:id')
   @UseGuards() //guard znajomi

@@ -11,6 +11,8 @@ import {
   Header,
   UploadedFile,
   Query,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -41,9 +43,9 @@ import { FriendService } from '../friend/friend.service';
 @Controller('/api/user')
 export class UserController {
   constructor(
-    private readonly userService: UserService,
-    private readonly travelService: TravelService,
-    private readonly friendService: FriendService,
+    @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
+    @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
+    @Inject(forwardRef(() => FriendService)) private readonly friendService: FriendService,
   ) {}
 
   @Post('/')

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { TravelService } from './travel.service';
 import { TravelController } from './travel.controller';
 import { MulterModule } from '@nestjs/platform-express';
@@ -11,7 +11,7 @@ import { PostModule } from '../post/post.module';
     MulterModule.register({
       storage: multerStorage(FileManagement.storageDir('tmp')),
     }),
-    PostModule,
+    forwardRef(() => PostModule),
   ],
   controllers: [TravelController],
   providers: [TravelService],

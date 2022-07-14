@@ -11,7 +11,7 @@ import {
   UploadedFile,
   Header,
   Inject,
-  HttpCode,
+  forwardRef,
 } from '@nestjs/common';
 import { TravelService } from './travel.service';
 import { UpdateTravelDto } from './dto/update-travel.dto';
@@ -29,13 +29,14 @@ import { TravelOwnerGuard } from '../../common/guards/travel-owner.guard';
 import { ReadStream } from 'fs';
 import { CreatePostDto } from '../post/dto/create-post.dto';
 import { PostService } from '../post/post.service';
+import { UserService } from '../user/user.service';
 
 @Controller('/api/travel')
 @UseGuards(JwtAuthGuard)
 export class TravelController {
   constructor(
-    private readonly travelService: TravelService,
-    private readonly postService: PostService,
+    @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
+    @Inject(forwardRef(() => PostService)) private readonly postService: PostService,
   ) {}
 
   @Get('/:id')

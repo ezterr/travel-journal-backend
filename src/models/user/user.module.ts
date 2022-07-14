@@ -13,8 +13,8 @@ import { FriendModule } from '../friend/friend.module';
     MulterModule.register({
       storage: multerStorage(FileManagement.storageDir('tmp')),
     }),
-    TravelModule,
-    PostModule,
+    forwardRef(() => TravelModule),
+    forwardRef(() => PostModule),
     forwardRef(() => FriendModule),
   ],
   controllers: [UserController],

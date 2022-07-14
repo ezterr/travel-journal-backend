@@ -1,4 +1,14 @@
-import { Controller, Post, UseGuards, Inject, Res, Delete, HttpCode, Get } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  UseGuards,
+  Inject,
+  Res,
+  Delete,
+  HttpCode,
+  Get,
+  forwardRef,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -16,8 +26,8 @@ import { UserService } from '../models/user/user.service';
 @Controller('/api/auth')
 export class AuthController {
   constructor(
-    @Inject(AuthService) private authService: AuthService,
-    @Inject(UserService) private userService: UserService,
+    @Inject(forwardRef(() => AuthService)) private authService: AuthService,
+    @Inject(forwardRef(() => UserService)) private userService: UserService,
   ) {}
 
   @Post('/login')

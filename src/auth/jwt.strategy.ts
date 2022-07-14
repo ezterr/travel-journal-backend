@@ -1,7 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { config } from '../config/config';
-import { NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException } from '@nestjs/common';
 import { User } from '../models/user/entities/user.entity';
 
 function cookieExtractor(req: any): null | string {

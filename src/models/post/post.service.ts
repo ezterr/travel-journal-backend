@@ -1,4 +1,10 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import {
@@ -16,7 +22,7 @@ import { DataSource } from 'typeorm';
 
 @Injectable()
 export class PostService {
-  constructor(@Inject(DataSource) private dataSource: DataSource) {}
+  constructor(@Inject(forwardRef(() => DataSource)) private dataSource: DataSource) {}
 
   async create(
     travelId: string,
