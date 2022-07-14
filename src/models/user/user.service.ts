@@ -13,8 +13,10 @@ import {
   CreateUserResponse,
   DeleteUserResponse,
   GetUserResponse,
+  GetUserSearchResponse,
   GetUserStatsResponse,
   UpdateUserResponse,
+  UserPublicDataInterface,
 } from '../../types';
 import { createHashPwd } from '../../common/utils/create-hash-pwd';
 import { UserSaveResponseData } from '../../types';
@@ -24,12 +26,15 @@ import { createReadStream } from 'fs';
 import { FileManagement } from '../../common/utils/file-management/file-management';
 import { PostService } from '../post/post.service';
 import { TravelService } from '../travel/travel.service';
+import { Like, Not } from 'typeorm';
+import { FriendService } from '../friend/friend.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly travelService: TravelService,
     private readonly postService: PostService,
+    private readonly friendService: FriendService,
   ) {}
 
   async create(
@@ -73,8 +78,27 @@ export class UserService {
     }
   }
 
-  searchUser() {
-    throw new Error('Method not implemented.');
+  async searchUser(
+    id: string,
+    search: string,
+    withFriends: boolean,
+  ): Promise<GetUserSearchResponse> {
+    if (!id) throw new BadRequestException();
+
+    const users = await User.find({
+      where: {
+        id: Not(id),
+        username: Like(`%${search ?? ''}%`),
+      },
+    });
+
+    if (withFriends) {
+      return users.map((e) => this.filterPublicData(e));
+    }
+
+    const friends = (await this.friendService.findAllByUserId(id)).map((e) => e.friendId);
+
+    return users.filter((e) => !friends.includes(e.id)).map((e) => this.filterPublicData(e));
   }
 
   async findOne(id: string): Promise<GetUserResponse> {
@@ -186,7 +210,24 @@ export class UserService {
   }
 
   filter(userEntity: User): UserSaveResponseData {
-    const { jwtId, hashPwd, photoFn, ...userResponse } = userEntity;
+    const { jwtId, hashPwd, photoFn, travels, friends, friendsRevert, ...userResponse } =
+      userEntity;
+
+    return { ...userResponse, avatar: `/api/user/photo/${userResponse.id}` };
+  }
+
+  filterPublicData(userEntity: User): UserPublicDataInterface {
+    const {
+      jwtId,
+      hashPwd,
+      photoFn,
+      email,
+      bio,
+      travels,
+      friends,
+      friendsRevert,
+      ...userResponse
+    } = userEntity;
 
     return { ...userResponse, avatar: `/api/user/photo/${userResponse.id}` };
   }

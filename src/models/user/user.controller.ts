@@ -24,8 +24,10 @@ import {
   GetFriendsResponse,
   GetTravelsResponse,
   GetUserResponse,
+  GetUserSearchResponse,
   GetUserStatsResponse,
   UpdateUserResponse,
+  UserPublicDataInterface,
 } from '../../types';
 import { ReadStream } from 'fs';
 import { Express } from 'express';
@@ -61,8 +63,12 @@ export class UserController {
 
   @Get('/:id/search')
   @UseGuards(JwtAuthGuard)
-  async searchUser(@Query('search') search: string, @Query('friends') friends: boolean) {
-    return this.userService.searchUser();
+  async searchUser(
+    @Param('id') id: string,
+    @Query('search') search: string,
+    @Query('friends') friends: boolean,
+  ): Promise<GetUserSearchResponse> {
+    return this.userService.searchUser(id, search, friends);
   }
 
   @Delete('/:id')

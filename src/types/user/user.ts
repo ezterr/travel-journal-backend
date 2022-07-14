@@ -15,6 +15,7 @@ export interface UserPublicDataInterface {
   firstName: string;
   lastName: string;
   username: string;
+  avatar: string;
 }
 
 export type UserSaveData = Omit<UserInterface, 'hashPwd'>;

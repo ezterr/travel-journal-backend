@@ -1,5 +1,6 @@
-import { UserSaveResponseData } from './user';
+import { UserPublicDataInterface, UserSaveResponseData } from './user';
 
+export type GetUserSearchResponse = UserPublicDataInterface[];
 export type GetUserResponse = UserSaveResponseData;
 export type CreateUserResponse = UserSaveResponseData;
 export type UpdateUserResponse = UserSaveResponseData;
