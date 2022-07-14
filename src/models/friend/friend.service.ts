@@ -161,6 +161,20 @@ export class FriendService {
     return this.getFriendshipTwoSite(friendship.user.id, friendship.friend.id);
   }
 
+  async getFriendsIdByUserId(id: string) {
+    if (!id) throw new Error('user id is empty');
+
+    return (
+      await this.dataSource
+        .createQueryBuilder()
+        .select(['friend.id', 'userFriend.id'])
+        .from(Friend, 'friend')
+        .leftJoin('friend.friend', 'userFriend')
+        .where('`friend`.`userId`=:id', { id })
+        .getMany()
+    ).map((e) => e.friend.id);
+  }
+
   filter(friendship: Friend): FriendSaveResponseData {
     const { user, friend, ...friendshipResponse } = friendship;
 

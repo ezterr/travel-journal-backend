@@ -28,8 +28,10 @@ import { createReadStream } from 'fs';
 import { FileManagement } from '../../common/utils/file-management/file-management';
 import { PostService } from '../post/post.service';
 import { TravelService } from '../travel/travel.service';
-import { Like, Not } from 'typeorm';
+import { DataSource, Like, Not } from 'typeorm';
 import { FriendService } from '../friend/friend.service';
+import { Friend } from '../friend/entities/friend.entity';
+import { Post } from '../post/entities/post.entity';
 
 @Injectable()
 export class UserService {
@@ -37,6 +39,7 @@ export class UserService {
     @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
     @Inject(forwardRef(() => PostService)) private readonly postService: PostService,
     @Inject(forwardRef(() => FriendService)) private readonly friendService: FriendService,
+    @Inject(forwardRef(() => DataSource)) private dataSource: DataSource,
   ) {}
 
   async create(
@@ -101,6 +104,32 @@ export class UserService {
     const friends = (await this.friendService.findAllByUserId(id)).map((e) => e.friend.id);
 
     return users.filter((e) => !friends.includes(e.id)).map((e) => this.filterPublicData(e));
+  }
+
+  async getIndex(id: string): Promise<any> {
+    const friendsId = await this.friendService.getFriendsIdByUserId(id);
+
+    const posts = await this.dataSource
+      .createQueryBuilder()
+      .select(['post', 'travel', 'user'])
+      .from(Post, 'post')
+      .leftJoin('post.travel', 'travel')
+      .leftJoin('travel.user', 'user')
+      .where('`user`.`id` IN (:...ids)', { ids: [...friendsId] })
+      .orWhere('`user`.`id`=:id', { id })
+      .orderBy('`post`.`createdAt`', 'DESC')
+      .getMany();
+
+    return posts.map((post) => {
+      const { travel } = post;
+      const { user } = travel;
+
+      return {
+        ...this.postService.filter(post),
+        travel: { ...this.travelService.filter(travel) },
+        user: { ...this.filterPublicData(user) },
+      };
+    });
   }
 
   async findOne(id: string): Promise<GetUserResponse> {

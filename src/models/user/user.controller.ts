@@ -61,6 +61,12 @@ export class UserController {
     return this.userService.findOne(id);
   }
 
+  @Get('/:id/index')
+  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
+  async getIndex(@Param('id') id: string): Promise<any> {
+    return this.userService.getIndex(id);
+  }
+
   @Get('/:id/search')
   @UseGuards(JwtAuthGuard)
   async searchUser(
