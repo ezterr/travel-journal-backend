@@ -1,19 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PostController } from './post.controller';
-import { PostService } from './post.service';
-import { MulterModule } from '@nestjs/platform-express';
-import { multerStorage } from '../../common/utils/multer-storage';
-import { FileManagement } from '../../common/utils/file-management/file-management';
-import { DatabaseModule } from '../../providers/database/database.module';
+import { TravelController } from '../travel.controller';
+import { TravelService } from '../travel.service';
 import { MockFunctionMetadata, ModuleMocker } from 'jest-mock';
+
 const moduleMocker = new ModuleMocker(global);
-describe('PostController', () => {
-  let controller: PostController;
+
+describe('TravelController', () => {
+  let controller: TravelController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [PostController],
-      providers: [PostService],
+      controllers: [TravelController],
+      providers: [TravelService],
     })
       .useMocker((token) => {
         // if (token === CatsService) {
@@ -27,7 +25,7 @@ describe('PostController', () => {
       })
       .compile();
 
-    controller = module.get<PostController>(PostController);
+    controller = module.get<TravelController>(TravelController);
   });
 
   it('should be defined', () => {

@@ -1,14 +1,19 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { UserController } from '../user.controller';
 import { UserService } from '../user.service';
-import { ModuleMocker, MockFunctionMetadata } from 'jest-mock';
+import { TravelModule } from '../../travel/travel.module';
+import { PostModule } from '../../post/post.module';
+import { MockFunctionMetadata, ModuleMocker } from 'jest-mock';
 
 const moduleMocker = new ModuleMocker(global);
 
-describe('UserService', () => {
-  let service: UserService;
+describe('UserController', () => {
+  let controller: UserController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [TravelModule, PostModule],
+      controllers: [UserController],
       providers: [UserService],
     })
       .useMocker((token) => {
@@ -20,10 +25,10 @@ describe('UserService', () => {
       })
       .compile();
 
-    service = module.get<UserService>(UserService);
+    controller = module.get<UserController>(UserController);
   });
 
-  it('should be defined', async () => {
-    expect(service).toBeDefined();
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
   });
 });
