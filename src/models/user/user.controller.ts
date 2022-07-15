@@ -83,7 +83,7 @@ export class UserController {
     @Query('friends') friends: boolean,
     @Query('page') page: number,
   ): Promise<GetUserSearchResponse> {
-    return this.userService.searchUser(id, search, friends);
+    return this.userService.searchUser(id, search, friends, page || 1);
   }
 
   @Delete('/:id')

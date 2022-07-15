@@ -19,7 +19,6 @@ import {
   GetUserSearchResponse,
   GetUserStatsResponse,
   UpdateUserResponse,
-  UserIndexSaveData,
   UserPublicDataInterface,
 } from '../../types';
 import { createHashPwd } from '../../common/utils/create-hash-pwd';
@@ -89,8 +88,14 @@ export class UserService {
     id: string | undefined,
     search: string,
     withFriends: boolean,
+    page = 1,
   ): Promise<GetUserSearchResponse> {
-    if (!search || search.length < 2) return [];
+    if (!search || search.length < 2)
+      return {
+        users: [],
+        totalPages: 0,
+        totalUsersCount: 0,
+      };
 
     const friendsId = await this.friendService.getFriendsIdByUserId(id, {
       waiting: !withFriends,
@@ -98,7 +103,7 @@ export class UserService {
       accepted: !withFriends,
     });
 
-    const users = await this.dataSource
+    const [users, totalUsersCount] = await this.dataSource
       .createQueryBuilder()
       .select(['user'])
       .from(User, 'user')
@@ -106,9 +111,16 @@ export class UserService {
       .andWhere('NOT user.id IN (:...friendsId)', {
         friendsId: [...(friendsId.length ? friendsId : ['null'])],
       })
-      .getMany();
+      .andWhere('user.id <> :id', { id })
+      .skip(config.itemsCountPerPage * (page - 1))
+      .take(config.itemsCountPerPage)
+      .getManyAndCount();
 
-    return users.map((e) => this.filterPublicData(e));
+    return {
+      users: users.map((e) => this.filterPublicData(e)),
+      totalPages: Math.ceil(totalUsersCount / config.itemsCountPerPage),
+      totalUsersCount,
+    };
   }
 
   async getIndex(id: string, page = 1): Promise<GetUserIndexResponse> {
@@ -120,7 +132,9 @@ export class UserService {
       .from(Post, 'post')
       .leftJoin('post.travel', 'travel')
       .leftJoin('travel.user', 'user')
-      .where('user.id IN (:...ids)', { ids: [...friendsId] })
+      .where('user.id IN (:...friendsId)', {
+        friendsId: [...(friendsId.length ? friendsId : ['null'])],
+      })
       .orWhere('user.id=:id', { id })
       .orderBy('post.createdAt', 'DESC')
       .skip(config.itemsCountPerPage * (page - 1))

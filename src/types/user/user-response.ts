@@ -1,6 +1,10 @@
 import { UserIndexSaveData, UserPublicDataInterface, UserSaveResponseData } from './user';
 
-export type GetUserSearchResponse = UserPublicDataInterface[];
+export type GetUserSearchResponse = {
+  users: UserPublicDataInterface[];
+  totalPages: number;
+  totalUsersCount: number;
+};
 export type GetUserResponse = UserSaveResponseData;
 export type CreateUserResponse = UserSaveResponseData;
 export type UpdateUserResponse = UserSaveResponseData;
