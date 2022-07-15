@@ -115,8 +115,11 @@ export class UserController {
 
   @Get('/:id/travel')
   @UseGuards(JwtAuthGuard, UserFriendAndOwnerGuard)
-  async findAllTravel(@Param('id') id: string): Promise<GetTravelsResponse> {
-    return this.travelService.findAllByUserId(id);
+  async findAllTravel(
+    @Param('id') id: string,
+    @Query('page') page: number,
+  ): Promise<GetTravelsResponse> {
+    return this.travelService.findAllByUserId(id, page || 1);
   }
 
   @Post('/:id/travel')

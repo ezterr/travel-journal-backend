@@ -16,6 +16,7 @@ import { createReadStream, ReadStream } from 'fs';
 import { FileManagementUser } from '../../common/utils/file-management/file-management-user';
 import { FileManagement } from '../../common/utils/file-management/file-management';
 import { FileManagementPost } from '../../common/utils/file-management/file-management-post';
+import { config } from '../../config/config';
 
 @Injectable()
 export class TravelService {
@@ -76,16 +77,22 @@ export class TravelService {
     return this.filter(travel);
   }
 
-  async findAllByUserId(id: string): Promise<GetTravelsResponse> {
+  async findAllByUserId(id: string, page = 1): Promise<GetTravelsResponse> {
     if (!id) throw new BadRequestException();
 
-    const travel = await Travel.find({
+    const [travels, totalTravelsCount] = await Travel.findAndCount({
       where: { user: { id } },
       relations: ['user'],
       order: { startAt: 'DESC' },
+      skip: config.itemsCountPerPage * (page - 1),
+      take: config.itemsCountPerPage,
     });
 
-    return travel.map((e) => this.filter(e));
+    return {
+      travels: travels.map((e) => this.filter(e)),
+      totalPages: Math.ceil(totalTravelsCount / config.itemsCountPerPage),
+      totalTravelsCount,
+    };
   }
 
   async update(
