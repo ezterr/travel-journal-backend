@@ -22,15 +22,16 @@ import { TravelService } from '../travel/travel.service';
 import { PostService } from '../post/post.service';
 import { FriendService } from '../friend/friend.service';
 import { DataSource } from 'typeorm';
+import { FriendGetService } from '../friend/friend-get.service';
 
 @Injectable()
 export class UserGetService {
   constructor(
+    @Inject(forwardRef(() => FriendGetService)) private readonly friendGetService: FriendGetService,
     @Inject(forwardRef(() => UserHelperService))
     private readonly userHelperService: UserHelperService,
     @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
     @Inject(forwardRef(() => PostService)) private readonly postService: PostService,
-    @Inject(forwardRef(() => FriendService)) private readonly friendService: FriendService,
     @Inject(forwardRef(() => DataSource)) private dataSource: DataSource,
   ) {}
 
@@ -72,7 +73,7 @@ export class UserGetService {
         totalUsersCount: 0,
       };
 
-    const friendsId = await this.friendService.getFriendsIdByUserId(id, {
+    const friendsId = await this.friendGetService.getFriendsIdByUserId(id, {
       waiting: !withFriends,
       invitation: !withFriends,
       accepted: !withFriends,
@@ -99,7 +100,7 @@ export class UserGetService {
   }
 
   async getIndex(id: string, page = 1): Promise<GetUserIndexResponse> {
-    const friendsId = await this.friendService.getFriendsIdByUserId(id, { accepted: true });
+    const friendsId = await this.friendGetService.getFriendsIdByUserId(id, { accepted: true });
 
     const [posts, totalPostsCount] = await this.dataSource
       .createQueryBuilder()

@@ -10,21 +10,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { compare } from 'bcrypt';
-import {
-  CreateUserResponse,
-  DeleteUserResponse,
-  GetUserStatsResponse,
-  UpdateUserResponse,
-} from '../../types';
+import { CreateUserResponse, DeleteUserResponse, UpdateUserResponse } from '../../types';
 import { createHashPwd } from '../../common/utils/create-hash-pwd';
 import { Express } from 'express';
 import { FileManagementUser } from '../../common/utils/file-management/file-management-user';
-import { createReadStream } from 'fs';
-import { FileManagement } from '../../common/utils/file-management/file-management';
-import { PostService } from '../post/post.service';
-import { TravelService } from '../travel/travel.service';
-import { DataSource } from 'typeorm';
-import { FriendService } from '../friend/friend.service';
 import { UserHelperService } from './user-helper.service';
 
 @Injectable()
@@ -32,10 +21,6 @@ export class UserService {
   constructor(
     @Inject(forwardRef(() => UserHelperService))
     private readonly userHelperService: UserHelperService,
-    @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
-    @Inject(forwardRef(() => PostService)) private readonly postService: PostService,
-    @Inject(forwardRef(() => FriendService)) private readonly friendService: FriendService,
-    @Inject(forwardRef(() => DataSource)) private dataSource: DataSource,
   ) {}
 
   async create(

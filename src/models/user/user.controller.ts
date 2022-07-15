@@ -43,10 +43,12 @@ import { FriendService } from '../friend/friend.service';
 import { TravelOwnerGuard } from '../../common/guards/travel-owner.guard';
 import { UserFriendAndOwnerGuard } from '../../common/guards/user-friend-and-owner.guard';
 import { UserGetService } from './user-get.service';
+import { FriendGetService } from '../friend/friend-get.service';
 
 @Controller('/api/user')
 export class UserController {
   constructor(
+    @Inject(forwardRef(() => FriendGetService)) private readonly friendGetService: FriendGetService,
     @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
     @Inject(forwardRef(() => UserGetService)) private readonly userGetService: UserGetService,
     @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
@@ -157,7 +159,7 @@ export class UserController {
     @Query('invitation') invitation: boolean,
     @Query('page') page: number,
   ): Promise<GetFriendsResponse> {
-    return this.friendService.findAllByUserId(id, page || 1, {
+    return this.friendGetService.findAllByUserId(id, page || 1, {
       waiting,
       accepted,
       invitation,
