@@ -1,7 +1,6 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Patch,
   Param,
@@ -10,28 +9,32 @@ import {
   UseGuards,
   UseInterceptors,
   Header,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { PostService } from './post.service';
-import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { Multer } from 'multer';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UserObj } from '../../common/decorators/user.decorator';
-import { User } from '../user/entities/user.entity';
-import { TravelOwnerGuard } from '../../common/guards/travel-owner.guard';
 import { ReadStream } from 'fs';
 import { PostOwnerGuard } from '../../common/guards/post-owner.guard';
+import { TravelService } from '../travel/travel.service';
+import { PostFriendAndOwnerGuard } from '../../common/guards/post-friend-and-owner.guard';
+import { DeletePostResponse } from '../../types';
+import { PostGetService } from './post-get.service';
 
 @Controller('/api/post')
 @UseGuards(JwtAuthGuard)
 export class PostController {
-  constructor(private readonly postService: PostService) {}
+  constructor(
+    @Inject(forwardRef(() => PostService)) private readonly postService: PostService,
+    @Inject(forwardRef(() => PostGetService)) private postGetService: PostGetService,
+  ) {}
 
   @Get('/:id')
-  @UseGuards(PostOwnerGuard)
+  @UseGuards(PostFriendAndOwnerGuard)
   findOne(@Param('id') id: string) {
-    return this.postService.findOne(id);
+    return this.postGetService.findOne(id);
   }
 
   @Patch(':id')
@@ -47,15 +50,15 @@ export class PostController {
 
   @Delete(':id')
   @UseGuards(PostOwnerGuard)
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<DeletePostResponse> {
     return this.postService.remove(id);
   }
 
   @Get('/photo/:id')
-  @UseGuards(PostOwnerGuard)
+  @UseGuards(PostFriendAndOwnerGuard)
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(@Param('id') id: string): Promise<ReadStream> {
-    return this.postService.getPhoto(id);
+    return this.postGetService.getPhoto(id);
   }
 }

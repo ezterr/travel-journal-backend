@@ -1,27 +1,25 @@
 import {
   BadRequestException,
+  forwardRef,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
-import {
-  CreatePostResponse,
-  GetPostResponse,
-  GetPostsResponse,
-  PostSaveResponseData,
-} from '../../types';
+import { CreatePostResponse, DeletePostResponse, PostSaveResponseData } from '../../types';
 import { Travel } from '../travel/entities/travel.entity';
 import { Post } from './entities/post.entity';
 import { FileManagementPost } from '../../common/utils/file-management/file-management-post';
-import { createReadStream, ReadStream } from 'fs';
-import { FileManagement } from '../../common/utils/file-management/file-management';
 import { DataSource } from 'typeorm';
+import { PostGetService } from './post-get.service';
 
 @Injectable()
 export class PostService {
-  constructor(@Inject(DataSource) private dataSource: DataSource) {}
+  constructor(
+    @Inject(forwardRef(() => DataSource)) private dataSource: DataSource,
+    @Inject(forwardRef(() => PostGetService)) private postGetService: PostGetService,
+  ) {}
 
   async create(
     travelId: string,
@@ -41,7 +39,7 @@ export class PostService {
       post.title = createPostDto.title;
       post.destination = createPostDto.destination;
       post.description = createPostDto.description;
-      post.createdAt = new Date().toISOString();
+      post.createdAt = new Date();
 
       await post.save();
 
@@ -49,17 +47,9 @@ export class PostService {
 
       if (file) {
         if (post.photoFn) {
-          await FileManagementPost.removePostPhoto(
-            travel.user.id,
-            travel.id,
-            post.photoFn,
-          );
+          await FileManagementPost.removePostPhoto(travel.user.id, travel.id, post.photoFn);
         }
-        const newFile = await FileManagementPost.savePostPhoto(
-          travel.user.id,
-          travel.id,
-          file,
-        );
+        const newFile = await FileManagementPost.savePostPhoto(travel.user.id, travel.id, file);
         await FileManagementPost.removeFromTmp(file.filename);
 
         post.photoFn = newFile.filename;
@@ -74,42 +64,12 @@ export class PostService {
     }
   }
 
-  async findOne(id: string): Promise<GetPostResponse> {
-    if (!id) throw new BadRequestException();
-
-    const post = await this.findOneById(id);
-    if (!post) throw new NotFoundException();
-
-    return this.filter(post);
-  }
-
-  async findAllByTravelId(id: string): Promise<GetPostsResponse> {
-    if (!id) throw new Error('id is empty');
-
-    const posts = await this.dataSource
-      .createQueryBuilder()
-      .select(['post', 'travel.id', 'user.id'])
-      .from(Post, 'post')
-      .leftJoin('post.travel', 'travel')
-      .leftJoin('travel.user', 'user')
-      .where('`travel`.`id`=:id', { id })
-      .orderBy('`post`.`createdAt`', 'DESC')
-      .getMany();
-
-    return posts.map((e) => this.filter(e));
-  }
-
-  async update(
-    id: string,
-    updatePostDto: UpdatePostDto,
-    file: Express.Multer.File,
-  ) {
+  async update(id: string, updatePostDto: UpdatePostDto, file: Express.Multer.File) {
     try {
       if (!id) throw new BadRequestException();
 
-      const post = await this.findOneById(id);
-      if (!post || !post.travel || !post.travel.user)
-        throw new NotFoundException();
+      const post = await this.postGetService.findOneById(id);
+      if (!post || !post.travel || !post.travel.user) throw new NotFoundException();
 
       post.title = updatePostDto.title ?? post.title;
       post.destination = updatePostDto.destination ?? post.destination;
@@ -144,59 +104,17 @@ export class PostService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<DeletePostResponse> {
     if (!id) throw new BadRequestException();
 
-    const post = await this.findOneById(id);
-    if (!post || !post.travel || !post.travel.user)
-      throw new NotFoundException();
+    const post = await this.postGetService.findOneById(id);
+    if (!post || !post.travel || !post.travel.user) throw new NotFoundException();
 
     if (post.photoFn)
-      await FileManagementPost.removePostPhoto(
-        post.travel.user.id,
-        post.travel.id,
-        post.photoFn,
-      );
+      await FileManagementPost.removePostPhoto(post.travel.user.id, post.travel.id, post.photoFn);
     await post.remove();
 
     return this.filter(post);
-  }
-
-  async getPhoto(id: string): Promise<ReadStream> {
-    if (!id) throw new BadRequestException();
-
-    const post = await this.findOneById(id);
-    if (post.photoFn && post.travel && post.travel.user) {
-      const filePath = FileManagementPost.getPostPhoto(
-        post.travel.user.id,
-        post.travel.id,
-        post.photoFn,
-      );
-      return createReadStream(filePath);
-    }
-
-    return createReadStream(FileManagement.storageDir('no-image.png'));
-  }
-
-  async findOneById(id: string) {
-    if (!id) throw new Error('postId is empty');
-
-    return this.dataSource
-      .createQueryBuilder()
-      .select(['post', 'travel.id', 'user.id'])
-      .from(Post, 'post')
-      .leftJoin('post.travel', 'travel')
-      .leftJoin('travel.user', 'user')
-      .where('`post`.`id`=:id', { id })
-      .getOne();
-  }
-
-  async getCountByUserId(id: string): Promise<number> {
-    if (!id) throw new BadRequestException();
-
-    return Post.count({
-      where: { travel: { user: { id } } },
-    });
   }
 
   filter(post: Post): PostSaveResponseData {

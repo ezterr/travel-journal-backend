@@ -1,19 +1,20 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { User } from '../models/user/entities/user.entity';
 import { compare } from 'bcrypt';
-import { UserService } from '../models/user/user.service';
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { v4 as uuid } from 'uuid';
 import { config } from '../config/config';
 
 import { LoginResponse, LogoutAllResponse, LogoutResponse } from '../types';
+import { UserHelperService } from '../models/user/user-helper.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @Inject(UserService) private userService: UserService,
-    @Inject(JwtService) private jwtService: JwtService,
+    @Inject(forwardRef(() => UserHelperService))
+    private readonly userHelperService: UserHelperService,
+    @Inject(JwtService) private readonly jwtService: JwtService,
   ) {}
 
   async validateUser(username: string, password: string): Promise<User | null> {
@@ -52,7 +53,7 @@ export class AuthService {
       });
     }
 
-    return this.userService.filter(user);
+    return this.userHelperService.filter(user);
   }
 
   async logout(res: Response): Promise<LogoutResponse> {
@@ -87,7 +88,7 @@ export class AuthService {
     let newJwtId: string;
     do {
       newJwtId = uuid();
-      isUniqueness = await this.userService.checkUserFieldUniqueness({
+      isUniqueness = await this.userHelperService.checkUserFieldUniqueness({
         jwtId: newJwtId,
       });
     } while (!isUniqueness);

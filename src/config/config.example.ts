@@ -1,4 +1,5 @@
 export const config = {
+  itemsCountPerPage: 10,
   jwtSecret: '',
   jwtTimeToExpire: '0s',
   jwtCookieTimeToExpire: 0,

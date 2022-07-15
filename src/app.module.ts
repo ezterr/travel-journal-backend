@@ -6,9 +6,10 @@ import { UserModule } from './models/user/user.module';
 import { DatabaseModule } from './providers/database/database.module';
 import { TravelModule } from './models/travel/travel.module';
 import { PostModule } from './models/post/post.module';
+import { FriendModule } from './models/friend/friend.module';
 
 @Module({
-  imports: [AuthModule, UserModule, DatabaseModule, TravelModule, PostModule],
+  imports: [AuthModule, UserModule, DatabaseModule, TravelModule, PostModule, FriendModule],
   controllers: [AppController],
   providers: [AppService],
 })

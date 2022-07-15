@@ -11,43 +11,43 @@ import {
   UploadedFile,
   Header,
   Inject,
-  HttpCode,
+  forwardRef,
+  Query,
 } from '@nestjs/common';
 import { TravelService } from './travel.service';
-import { CreateTravelDto } from './dto/create-travel.dto';
 import { UpdateTravelDto } from './dto/update-travel.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 import {
   CreatePostResponse,
-  CreateTravelResponse,
   DeleteTravelResponse,
   GetPostsResponse,
   GetTravelResponse,
   UpdateTravelResponse,
 } from '../../types';
-import { UserObj } from '../../common/decorators/user.decorator';
-import { User } from '../user/entities/user.entity';
 import { TravelOwnerGuard } from '../../common/guards/travel-owner.guard';
 import { ReadStream } from 'fs';
-import { Travel } from './entities/travel.entity';
-import { use } from 'passport';
 import { CreatePostDto } from '../post/dto/create-post.dto';
 import { PostService } from '../post/post.service';
+import { TravelFriendAndOwnerGuard } from '../../common/guards/travel-friend-and-owner.guard';
+import { TravelGetService } from './travel-get.service';
+import { PostGetService } from '../post/post-get.service';
 
 @Controller('/api/travel')
 @UseGuards(JwtAuthGuard)
 export class TravelController {
   constructor(
-    private readonly travelService: TravelService,
-    private readonly postService: PostService,
+    @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
+    @Inject(forwardRef(() => TravelService)) private readonly travelGetService: TravelGetService,
+    @Inject(forwardRef(() => PostService)) private readonly postService: PostService,
+    @Inject(forwardRef(() => PostGetService)) private postGetService: PostGetService,
   ) {}
 
   @Get('/:id')
-  @UseGuards(TravelOwnerGuard)
+  @UseGuards(TravelFriendAndOwnerGuard)
   async findOne(@Param('id') id: string): Promise<GetTravelResponse> {
-    return this.travelService.findOne(id);
+    return this.travelGetService.findOne(id);
   }
 
   @Patch('/:id')
@@ -68,11 +68,11 @@ export class TravelController {
   }
 
   @Get('/photo/:id')
-  @UseGuards(TravelOwnerGuard)
+  @UseGuards(TravelFriendAndOwnerGuard)
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(@Param('id') id: string): Promise<ReadStream> {
-    return this.travelService.getPhoto(id);
+    return this.travelGetService.getPhoto(id);
   }
 
   @Post('/:id/post')
@@ -87,8 +87,11 @@ export class TravelController {
   }
 
   @Get('/:id/post')
-  @UseGuards(TravelOwnerGuard)
-  async findAllPosts(@Param('id') id: string): Promise<GetPostsResponse> {
-    return this.postService.findAllByTravelId(id);
+  @UseGuards(TravelFriendAndOwnerGuard)
+  async findAllPosts(
+    @Param('id') id: string,
+    @Query('page') page: number,
+  ): Promise<GetPostsResponse> {
+    return this.postGetService.findAllByTravelId(id, page || 1);
   }
 }

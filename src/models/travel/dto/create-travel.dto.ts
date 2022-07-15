@@ -1,16 +1,9 @@
-import {
-  IsDateString,
-  IsInt,
-  IsString,
-  Length,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsDateString, IsInt, IsString, Length, Max, Min } from 'class-validator';
 import { CreateTravelDtoInterface } from '../../../types';
 
 export class CreateTravelDto implements CreateTravelDtoInterface {
   @IsString()
-  @Length(2, 128)
+  @Length(2, 64)
   public title: string;
 
   @IsString()
@@ -18,7 +11,7 @@ export class CreateTravelDto implements CreateTravelDtoInterface {
   public description: string;
 
   @IsString()
-  @Length(2, 128)
+  @Length(2, 64)
   public destination: string;
 
   @IsInt()

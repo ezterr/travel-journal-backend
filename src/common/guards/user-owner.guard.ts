@@ -1,15 +1,9 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  BadRequestException,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
+import { Injectable, CanActivate, ExecutionContext, BadRequestException } from '@nestjs/common';
 import { Request } from 'express';
 import { User } from '../../models/user/entities/user.entity';
 
 @Injectable()
-export class AccountOwnerGuard implements CanActivate {
+export class UserOwnerGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request: Request = context.switchToHttp().getRequest();
     const user = request.user as User;

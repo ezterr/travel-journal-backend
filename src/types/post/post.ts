@@ -3,7 +3,7 @@ export interface PostInterface {
   title: string;
   destination: string;
   description: string;
-  createdAt: string;
+  createdAt: Date;
   photoFn: string;
 }
 

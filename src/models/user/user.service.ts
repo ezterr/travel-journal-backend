@@ -1,6 +1,7 @@
 import {
   BadRequestException,
-  ConflictException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -9,27 +10,17 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { compare } from 'bcrypt';
-import {
-  CreateUserResponse,
-  DeleteUserResponse,
-  GetUserResponse,
-  GetUserStatsResponse,
-  UpdateUserResponse,
-} from '../../types';
+import { CreateUserResponse, DeleteUserResponse, UpdateUserResponse } from '../../types';
 import { createHashPwd } from '../../common/utils/create-hash-pwd';
-import { UserSaveResponseData } from '../../types';
 import { Express } from 'express';
 import { FileManagementUser } from '../../common/utils/file-management/file-management-user';
-import { createReadStream } from 'fs';
-import { FileManagement } from '../../common/utils/file-management/file-management';
-import { PostService } from '../post/post.service';
-import { TravelService } from '../travel/travel.service';
+import { UserHelperService } from './user-helper.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    private readonly travelService: TravelService,
-    private readonly postService: PostService,
+    @Inject(forwardRef(() => UserHelperService))
+    private readonly userHelperService: UserHelperService,
   ) {}
 
   async create(
@@ -37,10 +28,10 @@ export class UserService {
     file: Express.Multer.File,
   ): Promise<CreateUserResponse> {
     try {
-      await this.checkUserFieldUniquenessAndThrow({
+      await this.userHelperService.checkUserFieldUniquenessAndThrow({
         email: createUserDto.email,
       });
-      await this.checkUserFieldUniquenessAndThrow({
+      await this.userHelperService.checkUserFieldUniquenessAndThrow({
         username: createUserDto.username,
       });
 
@@ -66,20 +57,11 @@ export class UserService {
 
       await user.save();
 
-      return this.filter(user);
+      return this.userHelperService.filter(user);
     } catch (e) {
       if (file) await FileManagementUser.removeFromTmp(file.filename);
       throw e;
     }
-  }
-
-  async findOne(id: string): Promise<GetUserResponse> {
-    if (!id) throw new BadRequestException();
-
-    const user = await User.findOne({ where: { id } });
-    if (!user) throw new NotFoundException();
-
-    return this.filter(user);
   }
 
   async update(
@@ -99,10 +81,7 @@ export class UserService {
 
       if (updateUserDto.newPassword) {
         if (updateUserDto.password) {
-          const hashCompareResult = await compare(
-            updateUserDto.password,
-            user.hashPwd,
-          );
+          const hashCompareResult = await compare(updateUserDto.password, user.hashPwd);
 
           if (hashCompareResult) {
             user.hashPwd = await createHashPwd(updateUserDto.newPassword);
@@ -123,7 +102,7 @@ export class UserService {
 
       await user.save();
 
-      return this.filter(user);
+      return this.userHelperService.filter(user);
     } catch (e) {
       if (file) await FileManagementUser.removeFromTmp(file.filename);
       throw e;
@@ -139,58 +118,6 @@ export class UserService {
     await FileManagementUser.removeUserDir(id);
     await user.remove();
 
-    return this.filter(user);
-  }
-
-  async getStats(id: string): Promise<GetUserStatsResponse> {
-    if (!id) throw new BadRequestException();
-
-    const travelCount = await this.travelService.getCountByUserId(id);
-    const postCount = await this.postService.getCountByUserId(id);
-
-    return {
-      travelCount,
-      postCount,
-    };
-  }
-
-  async getPhoto(id: string) {
-    if (!id) throw new BadRequestException();
-
-    const user = await User.findOne({ where: { id } });
-
-    if (user?.photoFn) {
-      const filePath = FileManagementUser.getUserPhoto(id, user.photoFn);
-      return createReadStream(filePath);
-    }
-
-    return createReadStream(FileManagement.storageDir('user.png'));
-  }
-
-  async checkUserFieldUniquenessAndThrow(value: {
-    [key: string]: any;
-  }): Promise<void> {
-    const user = await User.findOne({
-      where: value,
-    });
-
-    const [key] = Object.keys(value);
-    if (user) throw new ConflictException(`${key} is not unique`);
-  }
-
-  async checkUserFieldUniqueness(value: {
-    [key: string]: any;
-  }): Promise<boolean> {
-    const user = await User.findOne({
-      where: value,
-    });
-
-    return !user;
-  }
-
-  filter(userEntity: User): UserSaveResponseData {
-    const { jwtId, hashPwd, photoFn, ...userResponse } = userEntity;
-
-    return { ...userResponse, avatar: `/api/user/photo/${userResponse.id}` };
+    return this.userHelperService.filter(user);
   }
 }

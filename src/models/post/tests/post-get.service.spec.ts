@@ -1,33 +1,29 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
 import { MockFunctionMetadata, ModuleMocker } from 'jest-mock';
+import { PostGetService } from '../post-get.service';
+
 const moduleMocker = new ModuleMocker(global);
 
-describe('AuthController', () => {
-  let controller: AuthController;
+describe('PostGetService', () => {
+  let service: PostGetService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController],
+      providers: [PostGetService],
     })
       .useMocker((token) => {
-        // if (token === CatsService) {
-        //   return { findAll: jest.fn().mockResolvedValue(results) };
-        // }
         if (typeof token === 'function') {
-          const mockMetadata = moduleMocker.getMetadata(
-            token,
-          ) as MockFunctionMetadata<any, any>;
+          const mockMetadata = moduleMocker.getMetadata(token) as MockFunctionMetadata<any, any>;
           const Mock = moduleMocker.generateFromMetadata(mockMetadata);
           return new Mock();
         }
       })
       .compile();
 
-    controller = module.get<AuthController>(AuthController);
+    service = module.get<PostGetService>(PostGetService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(service).toBeDefined();
   });
 });

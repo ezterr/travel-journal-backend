@@ -1,13 +1,6 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateTravelDto } from './create-travel.dto';
-import {
-  IsDateString,
-  IsInt,
-  IsString,
-  Length,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsDateString, IsInt, IsString, Length, Max, Min } from 'class-validator';
 import { UpdateTravelDtoInterface } from '../../../types';
 
 export class UpdateTravelDto
@@ -15,7 +8,7 @@ export class UpdateTravelDto
   implements UpdateTravelDtoInterface
 {
   @IsString()
-  @Length(2, 128)
+  @Length(2, 64)
   public title: string;
 
   @IsString()
@@ -23,7 +16,7 @@ export class UpdateTravelDto
   public description: string;
 
   @IsString()
-  @Length(2, 128)
+  @Length(2, 64)
   public destination: string;
 
   @IsInt()

@@ -5,8 +5,8 @@ export interface TravelInterface {
   destination: string;
   comradesCount: number;
   photoFn: string;
-  startAt: string;
-  endAt: string;
+  startAt: Date;
+  endAt: Date;
 }
 
 export type TravelSaveResponseData = Omit<TravelInterface, 'photoFn'> & {

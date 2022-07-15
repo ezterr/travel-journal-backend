@@ -16,13 +16,13 @@ export class Travel extends BaseEntity implements TravelInterface {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-  @Column({ length: 128 })
+  @Column({ length: 64 })
   public title: string;
 
   @Column({ length: 512 })
   public description: string;
 
-  @Column({ length: 128 })
+  @Column({ length: 64 })
   public destination: string;
 
   @Column({ precision: 4 })
@@ -32,10 +32,10 @@ export class Travel extends BaseEntity implements TravelInterface {
   public photoFn: string;
 
   @Column({ type: 'date' })
-  public startAt: string;
+  public startAt: Date;
 
   @Column({ type: 'date' })
-  public endAt: string;
+  public endAt: Date;
 
   @ManyToOne((type) => User, (user) => user.travels)
   @JoinTable()

@@ -1,3 +1,6 @@
+import { PostSaveResponseData } from '../post';
+import { TravelSaveResponseData } from '../travel';
+
 export interface UserInterface {
   id: string;
   firstName: string;
@@ -10,7 +13,19 @@ export interface UserInterface {
   jwtId: string;
 }
 
+export interface UserPublicDataInterface {
+  id: string;
+  firstName: string;
+  lastName: string;
+  username: string;
+  avatar: string;
+}
+
 export type UserSaveData = Omit<UserInterface, 'hashPwd'>;
 export type UserSaveResponseData = Omit<UserSaveData, 'photoFn' | 'jwtId'> & {
   avatar: string;
+};
+
+export type UserIndexSaveData = PostSaveResponseData & { travel: TravelSaveResponseData } & {
+  user: UserPublicDataInterface;
 };

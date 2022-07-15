@@ -12,8 +12,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const res: Response = ctx.getResponse();
-    const status =
-      exception instanceof HttpException ? exception.getStatus() : 500;
+    const status = exception instanceof HttpException ? exception.getStatus() : 500;
 
     const response =
       exception instanceof HttpException
