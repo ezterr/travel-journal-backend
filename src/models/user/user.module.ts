@@ -7,6 +7,8 @@ import { FileManagement } from '../../common/utils/file-management/file-manageme
 import { TravelModule } from '../travel/travel.module';
 import { PostModule } from '../post/post.module';
 import { FriendModule } from '../friend/friend.module';
+import { UserHelperService } from './user-helper.service';
+import { UserGetService } from './user-get.service';
 
 @Module({
   imports: [
@@ -18,7 +20,7 @@ import { FriendModule } from '../friend/friend.module';
     forwardRef(() => FriendModule),
   ],
   controllers: [UserController],
-  providers: [UserService],
-  exports: [UserService],
+  providers: [UserService, UserHelperService, UserGetService],
+  exports: [UserService, UserHelperService, UserGetService],
 })
 export class UserModule {}

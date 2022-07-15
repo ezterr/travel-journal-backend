@@ -21,6 +21,7 @@ import { User } from '../user/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { config } from '../../config/config';
+import { UserHelperService } from '../user/user-helper.service';
 
 interface StatusObj {
   waiting?: boolean;
@@ -33,6 +34,8 @@ type friendshipTwoSite = { friendshipUser: Friend; friendshipFriend: Friend };
 @Injectable()
 export class FriendService {
   constructor(
+    @Inject(forwardRef(() => UserHelperService))
+    private readonly userHelperService: UserHelperService,
     @Inject(forwardRef(() => DataSource)) private readonly dataSource: DataSource,
     @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
   ) {}
@@ -197,7 +200,7 @@ export class FriendService {
     return {
       ...friendshipResponse,
       userId: user.id,
-      friend: this.userService.filterPublicData(friend),
+      friend: this.userHelperService.filterPublicData(friend),
     };
   }
 }

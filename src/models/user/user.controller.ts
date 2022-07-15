@@ -42,11 +42,13 @@ import { CreateFriendResponse } from '../../types';
 import { FriendService } from '../friend/friend.service';
 import { TravelOwnerGuard } from '../../common/guards/travel-owner.guard';
 import { UserFriendAndOwnerGuard } from '../../common/guards/user-friend-and-owner.guard';
+import { UserGetService } from './user-get.service';
 
 @Controller('/api/user')
 export class UserController {
   constructor(
     @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
+    @Inject(forwardRef(() => UserGetService)) private readonly userGetService: UserGetService,
     @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
     @Inject(forwardRef(() => FriendService)) private readonly friendService: FriendService,
   ) {}
@@ -63,7 +65,7 @@ export class UserController {
   @Get('/:id')
   @UseGuards(JwtAuthGuard, UserFriendAndOwnerGuard)
   async findOne(@Param('id') id: string): Promise<GetUserResponse> {
-    return this.userService.findOne(id);
+    return this.userGetService.findOne(id);
   }
 
   @Get('/:id/index')
@@ -72,7 +74,7 @@ export class UserController {
     @Param('id') id: string,
     @Query('page') page: number,
   ): Promise<GetUserIndexResponse> {
-    return this.userService.getIndex(id, page || 1);
+    return this.userGetService.getIndex(id, page || 1);
   }
 
   @Get('/:id/search')
@@ -83,7 +85,7 @@ export class UserController {
     @Query('friends') friends: boolean,
     @Query('page') page: number,
   ): Promise<GetUserSearchResponse> {
-    return this.userService.searchUser(id, search, friends, page || 1);
+    return this.userGetService.searchUser(id, search, friends, page || 1);
   }
 
   @Delete('/:id')

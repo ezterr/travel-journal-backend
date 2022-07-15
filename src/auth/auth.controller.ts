@@ -22,12 +22,14 @@ import {
   LogoutResponse,
 } from '../types';
 import { UserService } from '../models/user/user.service';
+import { UserGetService } from '../models/user/user-get.service';
 
 @Controller('/api/auth')
 export class AuthController {
   constructor(
     @Inject(forwardRef(() => AuthService)) private authService: AuthService,
     @Inject(forwardRef(() => UserService)) private userService: UserService,
+    @Inject(forwardRef(() => UserGetService)) private readonly userGetService: UserGetService,
   ) {}
 
   @Post('/login')
@@ -58,6 +60,6 @@ export class AuthController {
   @Get('/user')
   @UseGuards(JwtAuthGuard)
   async getAuthUser(@UserObj() user: User): Promise<GetUserFromTokenResponse> {
-    return this.userService.findOne(user.id);
+    return this.userGetService.findOne(user.id);
   }
 }
