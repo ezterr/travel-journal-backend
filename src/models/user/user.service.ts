@@ -30,10 +30,10 @@ import { createReadStream } from 'fs';
 import { FileManagement } from '../../common/utils/file-management/file-management';
 import { PostService } from '../post/post.service';
 import { TravelService } from '../travel/travel.service';
-import { DataSource, Like, Not } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { FriendService } from '../friend/friend.service';
-import { Friend } from '../friend/entities/friend.entity';
 import { Post } from '../post/entities/post.entity';
+import { config } from '../../config/config';
 
 @Injectable()
 export class UserService {
@@ -111,21 +111,23 @@ export class UserService {
     return users.map((e) => this.filterPublicData(e));
   }
 
-  async getIndex(id: string): Promise<GetUserIndexResponse> {
+  async getIndex(id: string, page = 1): Promise<GetUserIndexResponse> {
     const friendsId = await this.friendService.getFriendsIdByUserId(id, { accepted: true });
 
-    const posts = await this.dataSource
+    const [posts, totalPostsCount] = await this.dataSource
       .createQueryBuilder()
       .select(['post', 'travel', 'user'])
       .from(Post, 'post')
       .leftJoin('post.travel', 'travel')
       .leftJoin('travel.user', 'user')
-      .where('`user`.`id` IN (:...ids)', { ids: [...friendsId] })
-      .orWhere('`user`.`id`=:id', { id })
-      .orderBy('`post`.`createdAt`', 'DESC')
-      .getMany();
+      .where('user.id IN (:...ids)', { ids: [...friendsId] })
+      .orWhere('user.id=:id', { id })
+      .orderBy('post.createdAt', 'DESC')
+      .skip(config.itemsCountPerPage * (page - 1))
+      .take(config.itemsCountPerPage)
+      .getManyAndCount();
 
-    return posts.map((post) => {
+    const postsFiltered = posts.map((post) => {
       const { travel } = post;
       const { user } = travel;
 
@@ -135,6 +137,12 @@ export class UserService {
         user: { ...this.filterPublicData(user) },
       };
     });
+
+    return {
+      posts: postsFiltered,
+      totalPages: Math.ceil(totalPostsCount / config.itemsCountPerPage),
+      totalPostsCount,
+    };
   }
 
   async findOne(id: string): Promise<GetUserResponse> {

@@ -68,8 +68,11 @@ export class UserController {
 
   @Get('/:id/index')
   @UseGuards(JwtAuthGuard, UserOwnerGuard)
-  async getIndex(@Param('id') id: string): Promise<GetUserIndexResponse> {
-    return this.userService.getIndex(id);
+  async getIndex(
+    @Param('id') id: string,
+    @Query('page') page: number,
+  ): Promise<GetUserIndexResponse> {
+    return this.userService.getIndex(id, page || 1);
   }
 
   @Get('/:id/search')

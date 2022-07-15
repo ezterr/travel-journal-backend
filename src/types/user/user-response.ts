@@ -6,7 +6,11 @@ export type CreateUserResponse = UserSaveResponseData;
 export type UpdateUserResponse = UserSaveResponseData;
 export type DeleteUserResponse = UserSaveResponseData;
 
-export type GetUserIndexResponse = UserIndexSaveData[];
+export type GetUserIndexResponse = {
+  posts: UserIndexSaveData[];
+  totalPages: number;
+  totalPostsCount: number;
+};
 
 export interface GetUserStatsResponse {
   travelCount: number;
