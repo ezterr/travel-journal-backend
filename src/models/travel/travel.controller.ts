@@ -30,21 +30,22 @@ import { TravelOwnerGuard } from '../../common/guards/travel-owner.guard';
 import { ReadStream } from 'fs';
 import { CreatePostDto } from '../post/dto/create-post.dto';
 import { PostService } from '../post/post.service';
-import { UserService } from '../user/user.service';
 import { TravelFriendAndOwnerGuard } from '../../common/guards/travel-friend-and-owner.guard';
+import { TravelGetService } from './travel-get.service';
 
 @Controller('/api/travel')
 @UseGuards(JwtAuthGuard)
 export class TravelController {
   constructor(
     @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
+    @Inject(forwardRef(() => TravelService)) private readonly travelGetService: TravelGetService,
     @Inject(forwardRef(() => PostService)) private readonly postService: PostService,
   ) {}
 
   @Get('/:id')
   @UseGuards(TravelFriendAndOwnerGuard)
   async findOne(@Param('id') id: string): Promise<GetTravelResponse> {
-    return this.travelService.findOne(id);
+    return this.travelGetService.findOne(id);
   }
 
   @Patch('/:id')
@@ -69,7 +70,7 @@ export class TravelController {
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(@Param('id') id: string): Promise<ReadStream> {
-    return this.travelService.getPhoto(id);
+    return this.travelGetService.getPhoto(id);
   }
 
   @Post('/:id/post')

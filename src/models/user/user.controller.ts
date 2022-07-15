@@ -44,6 +44,7 @@ import { TravelOwnerGuard } from '../../common/guards/travel-owner.guard';
 import { UserFriendAndOwnerGuard } from '../../common/guards/user-friend-and-owner.guard';
 import { UserGetService } from './user-get.service';
 import { FriendGetService } from '../friend/friend-get.service';
+import { TravelGetService } from '../travel/travel-get.service';
 
 @Controller('/api/user')
 export class UserController {
@@ -52,6 +53,7 @@ export class UserController {
     @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
     @Inject(forwardRef(() => UserGetService)) private readonly userGetService: UserGetService,
     @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
+    @Inject(forwardRef(() => TravelService)) private readonly travelGetService: TravelGetService,
     @Inject(forwardRef(() => FriendService)) private readonly friendService: FriendService,
   ) {}
 
@@ -127,7 +129,7 @@ export class UserController {
     @Param('id') id: string,
     @Query('page') page: number,
   ): Promise<GetTravelsResponse> {
-    return this.travelService.findAllByUserId(id, page || 1);
+    return this.travelGetService.findAllByUserId(id, page || 1);
   }
 
   @Post('/:id/travel')

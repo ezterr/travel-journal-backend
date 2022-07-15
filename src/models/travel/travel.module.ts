@@ -5,6 +5,7 @@ import { MulterModule } from '@nestjs/platform-express';
 import { multerStorage } from '../../common/utils/multer-storage';
 import { FileManagement } from '../../common/utils/file-management/file-management';
 import { PostModule } from '../post/post.module';
+import { TravelGetService } from './travel-get.service';
 
 @Module({
   imports: [
@@ -14,7 +15,7 @@ import { PostModule } from '../post/post.module';
     forwardRef(() => PostModule),
   ],
   controllers: [TravelController],
-  providers: [TravelService],
-  exports: [TravelService],
+  providers: [TravelService, TravelGetService],
+  exports: [TravelService, TravelGetService],
 })
 export class TravelModule {}
