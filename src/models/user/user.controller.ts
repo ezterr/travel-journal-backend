@@ -25,6 +25,7 @@ import {
   DeleteUserResponse,
   GetFriendsResponse,
   GetTravelsResponse,
+  GetUserIndexResponse,
   GetUserResponse,
   GetUserSearchResponse,
   GetUserStatsResponse,
@@ -67,7 +68,7 @@ export class UserController {
 
   @Get('/:id/index')
   @UseGuards(JwtAuthGuard, UserOwnerGuard)
-  async getIndex(@Param('id') id: string): Promise<any> {
+  async getIndex(@Param('id') id: string): Promise<GetUserIndexResponse> {
     return this.userService.getIndex(id);
   }
 

@@ -1,10 +1,12 @@
-import { UserPublicDataInterface, UserSaveResponseData } from './user';
+import { UserIndexSaveData, UserPublicDataInterface, UserSaveResponseData } from './user';
 
 export type GetUserSearchResponse = UserPublicDataInterface[];
 export type GetUserResponse = UserSaveResponseData;
 export type CreateUserResponse = UserSaveResponseData;
 export type UpdateUserResponse = UserSaveResponseData;
 export type DeleteUserResponse = UserSaveResponseData;
+
+export type GetUserIndexResponse = UserIndexSaveData[];
 
 export interface GetUserStatsResponse {
   travelCount: number;

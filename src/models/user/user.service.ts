@@ -14,10 +14,12 @@ import { compare } from 'bcrypt';
 import {
   CreateUserResponse,
   DeleteUserResponse,
+  GetUserIndexResponse,
   GetUserResponse,
   GetUserSearchResponse,
   GetUserStatsResponse,
   UpdateUserResponse,
+  UserIndexSaveData,
   UserPublicDataInterface,
 } from '../../types';
 import { createHashPwd } from '../../common/utils/create-hash-pwd';
@@ -106,7 +108,7 @@ export class UserService {
     return users.filter((e) => !friends.includes(e.id)).map((e) => this.filterPublicData(e));
   }
 
-  async getIndex(id: string): Promise<any> {
+  async getIndex(id: string): Promise<GetUserIndexResponse> {
     const friendsId = await this.friendService.getFriendsIdByUserId(id);
 
     const posts = await this.dataSource
