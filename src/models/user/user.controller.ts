@@ -18,7 +18,7 @@ import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
-import { AccountOwnerGuard } from '../../common/guards/account-owner.guard';
+import { UserOwnerGuard } from '../../common/guards/user-owner.guard';
 import {
   CreateTravelResponse,
   CreateUserResponse,
@@ -39,6 +39,8 @@ import { CreateTravelDto } from '../travel/dto/create-travel.dto';
 import { CreateFriendDto } from '../friend/dto/create-friend.dto';
 import { CreateFriendResponse } from '../../types';
 import { FriendService } from '../friend/friend.service';
+import { TravelOwnerGuard } from '../../common/guards/travel-owner.guard';
+import { UserFriendAndOwnerGuard } from '../../common/guards/user-friend-and-owner.guard';
 
 @Controller('/api/user')
 export class UserController {
@@ -58,19 +60,19 @@ export class UserController {
   }
 
   @Get('/:id')
-  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
+  @UseGuards(JwtAuthGuard, UserFriendAndOwnerGuard)
   async findOne(@Param('id') id: string): Promise<GetUserResponse> {
     return this.userService.findOne(id);
   }
 
   @Get('/:id/index')
-  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
+  @UseGuards(JwtAuthGuard, UserOwnerGuard)
   async getIndex(@Param('id') id: string): Promise<any> {
     return this.userService.getIndex(id);
   }
 
   @Get('/:id/search')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, UserOwnerGuard)
   async searchUser(
     @Param('id') id: string,
     @Query('search') search: string,
@@ -80,13 +82,13 @@ export class UserController {
   }
 
   @Delete('/:id')
-  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
+  @UseGuards(JwtAuthGuard, UserOwnerGuard)
   async remove(@Param('id') id: string): Promise<DeleteUserResponse> {
     return this.userService.remove(id);
   }
 
   @Patch('/:id')
-  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
+  @UseGuards(JwtAuthGuard, UserOwnerGuard)
   @UseInterceptors(FileInterceptor('photo'))
   async update(
     @Param('id') id: string,
@@ -97,7 +99,7 @@ export class UserController {
   }
 
   @Get('/:id/stats')
-  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
+  @UseGuards(JwtAuthGuard, UserOwnerGuard)
   async getStats(@Param('id') id: string): Promise<GetUserStatsResponse> {
     return this.userService.getStats(id);
   }
@@ -111,7 +113,7 @@ export class UserController {
   }
 
   @Get('/:id/travel')
-  @UseGuards(JwtAuthGuard) //guard znajomi
+  @UseGuards(JwtAuthGuard, UserFriendAndOwnerGuard) //guard znajomi
   async findAllTravel(@Param('id') id: string): Promise<GetTravelsResponse> {
     return this.travelService.findAllByUserId(id);
   }
@@ -128,7 +130,7 @@ export class UserController {
   }
 
   @Post('/:id/friend')
-  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
+  @UseGuards(JwtAuthGuard, UserOwnerGuard)
   async createFriendship(
     @Body() createFriendDto: CreateFriendDto,
     @Param('id') id: string,
@@ -137,7 +139,7 @@ export class UserController {
   }
 
   @Get('/:id/friend')
-  @UseGuards(JwtAuthGuard, AccountOwnerGuard)
+  @UseGuards(JwtAuthGuard, UserOwnerGuard)
   async getAllFriendshipByUserId(
     @Param('id') id: string,
     @Query('waiting') waiting: boolean,
