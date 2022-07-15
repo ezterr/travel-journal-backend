@@ -27,7 +27,7 @@ export class PostOwnerGuard implements CanActivate {
       .from(Post, 'post')
       .leftJoin('post.travel', 'travel')
       .leftJoin('travel.user', 'user')
-      .where('`post`.`id`=:postId', { postId })
+      .where('post.id=:postId', { postId })
       .getOne();
 
     if (!postSimple) throw new NotFoundException();

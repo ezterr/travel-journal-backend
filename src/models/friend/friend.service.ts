@@ -79,8 +79,8 @@ export class FriendService {
       .from(Friend, 'friendship')
       .leftJoin('friendship.user', 'user')
       .leftJoin('friendship.friend', 'friend')
-      .where('`friendship`.`userId`=:id', { id })
-      .andWhere('`friendship`.`status` IN (:...status)', {
+      .where('friendship.userId=:id', { id })
+      .andWhere('friendship.status IN (:...status)', {
         status: [...activeStatus],
       })
       .skip(config.itemsCountPerPage * (page - 1))

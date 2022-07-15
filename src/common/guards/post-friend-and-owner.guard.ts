@@ -28,7 +28,7 @@ export class PostFriendAndOwnerGuard implements CanActivate {
       .from(Post, 'post')
       .leftJoin('post.travel', 'travel')
       .leftJoin('travel.user', 'user')
-      .where('`post`.`id`=:postId', { postId })
+      .where('post.id=:postId', { postId })
       .getOne();
 
     if (!postSimple) throw new NotFoundException();
@@ -38,7 +38,7 @@ export class PostFriendAndOwnerGuard implements CanActivate {
       .select(['friend.id', 'userFriend.id'])
       .from(Friend, 'friend')
       .leftJoin('friend.friend', 'userFriend')
-      .where('`friend`.`userId`=:id AND `friend`.`status`="accepted"', {
+      .where('friend.userId=:id AND friend.status="accepted"', {
         id: postSimple.travel.user.id,
       })
       .getOne();

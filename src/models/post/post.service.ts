@@ -178,7 +178,7 @@ export class PostService {
       .from(Post, 'post')
       .leftJoin('post.travel', 'travel')
       .leftJoin('travel.user', 'user')
-      .where('`post`.`id`=:id', { id })
+      .where('post.id=:id', { id })
       .getOne();
   }
 

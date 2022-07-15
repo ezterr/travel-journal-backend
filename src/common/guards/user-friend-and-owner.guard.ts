@@ -27,7 +27,7 @@ export class UserFriendAndOwnerGuard implements CanActivate {
       .select(['friend.id', 'userFriend.id'])
       .from(Friend, 'friend')
       .leftJoin('friend.friend', 'userFriend')
-      .where('`friend`.`userId`=:id AND `friend`.`status`="accepted"', { id: ownerId })
+      .where('friend.userId=:id AND friend.status="accepted"', { id: ownerId })
       .getOne();
 
     return user.id === ownerId || user.id === friend.friend.id;

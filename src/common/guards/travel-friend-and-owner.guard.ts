@@ -27,7 +27,7 @@ export class TravelFriendAndOwnerGuard implements CanActivate {
       .select(['travel.id', 'user.id'])
       .from(Travel, 'travel')
       .leftJoin('travel.user', 'user')
-      .where('`travel`.`id`=:travelId', { travelId })
+      .where('travel.id=:travelId', { travelId })
       .getOne();
 
     if (!travelSimple) throw new NotFoundException();
@@ -37,9 +37,10 @@ export class TravelFriendAndOwnerGuard implements CanActivate {
       .select(['friend.id', 'userFriend.id'])
       .from(Friend, 'friend')
       .leftJoin('friend.friend', 'userFriend')
-      .where('`friend`.`userId`=:id AND `friend`.`status`="accepted"', {
+      .where('friend.userId=:id', {
         id: travelSimple.user.id,
       })
+      .andWhere('friend.status="accepted"')
       .getOne();
 
     return travelSimple.user.id === user.id || friend.friend.id === user.id;
