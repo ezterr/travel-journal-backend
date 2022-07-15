@@ -92,24 +92,27 @@ export class UserService {
   ): Promise<GetUserSearchResponse> {
     if (!search || search.length < 2) return [];
 
-    const users = await User.find({
-      where: {
-        id: Not(id ?? ''),
-        username: Like(`%${search ?? ''}%`),
-      },
+    const friendsId = await this.friendService.getFriendsIdByUserId(id, {
+      waiting: !withFriends,
+      invitation: !withFriends,
+      accepted: !withFriends,
     });
 
-    if (withFriends) {
-      return users.map((e) => this.filterPublicData(e));
-    }
+    const users = await this.dataSource
+      .createQueryBuilder()
+      .select(['user'])
+      .from(User, 'user')
+      .where('user.username LIKE :search', { search: `%${search ?? ''}%` })
+      .andWhere('NOT user.id IN (:...friendsId)', {
+        friendsId: [...(friendsId.length ? friendsId : ['null'])],
+      })
+      .getMany();
 
-    const friends = (await this.friendService.findAllByUserId(id)).map((e) => e.friend.id);
-
-    return users.filter((e) => !friends.includes(e.id)).map((e) => this.filterPublicData(e));
+    return users.map((e) => this.filterPublicData(e));
   }
 
   async getIndex(id: string): Promise<GetUserIndexResponse> {
-    const friendsId = await this.friendService.getFriendsIdByUserId(id);
+    const friendsId = await this.friendService.getFriendsIdByUserId(id, { accepted: true });
 
     const posts = await this.dataSource
       .createQueryBuilder()

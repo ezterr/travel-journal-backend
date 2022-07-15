@@ -21,7 +21,7 @@ import { User } from '../user/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { UserService } from '../user/user.service';
 
-interface statusObj {
+interface StatusObj {
   waiting?: boolean;
   accepted?: boolean;
   invitation?: boolean;
@@ -59,32 +59,30 @@ export class FriendService {
     return this.filter(friendship);
   }
 
-  async findAllByUserId(id: string, statusObj?: statusObj): Promise<GetFriendsResponse> {
+  async findAllByUserId(id: string, statusObj?: StatusObj): Promise<GetFriendsResponse> {
     if (!id) throw new BadRequestException();
 
-    const activeStatus = Object.entries(statusObj ?? {})
+    const activeStatus = Object.entries(
+      statusObj ?? {
+        waiting: true,
+        accepted: true,
+        invitation: true,
+      },
+    )
       .filter((e) => e[1])
       .map((e) => e[0]);
 
-    let friendship: Friend[] = [];
-    if (activeStatus.length > 0) {
-      friendship = await this.dataSource
-        .createQueryBuilder()
-        .select(['friendship', 'friend', 'user'])
-        .from(Friend, 'friendship')
-        .leftJoin('friendship.user', 'user')
-        .leftJoin('friendship.friend', 'friend')
-        .where('`friendship`.`userId`=:id', { id })
-        .andWhere('`friendship`.`status` IN (:...status)', {
-          status: [...activeStatus],
-        })
-        .getMany();
-    } else {
-      friendship = await Friend.find({
-        where: { user: { id } },
-        relations: ['user', 'friend'],
-      });
-    }
+    const friendship = await this.dataSource
+      .createQueryBuilder()
+      .select(['friendship', 'friend', 'user'])
+      .from(Friend, 'friendship')
+      .leftJoin('friendship.user', 'user')
+      .leftJoin('friendship.friend', 'friend')
+      .where('`friendship`.`userId`=:id', { id })
+      .andWhere('`friendship`.`status` IN (:...status)', {
+        status: [...activeStatus],
+      })
+      .getMany();
 
     return friendship.map((e) => this.filter(e));
   }
@@ -161,8 +159,18 @@ export class FriendService {
     return this.getFriendshipTwoSite(friendship.user.id, friendship.friend.id);
   }
 
-  async getFriendsIdByUserId(id: string) {
+  async getFriendsIdByUserId(id: string, statusObj?: StatusObj) {
     if (!id) throw new Error('user id is empty');
+
+    const activeStatus = Object.entries(
+      statusObj ?? {
+        waiting: true,
+        accepted: true,
+        invitation: true,
+      },
+    )
+      .filter((e) => e[1])
+      .map((e) => e[0]);
 
     return (
       await this.dataSource
@@ -170,7 +178,8 @@ export class FriendService {
         .select(['friend.id', 'userFriend.id'])
         .from(Friend, 'friend')
         .leftJoin('friend.friend', 'userFriend')
-        .where('`friend`.`userId`=:id', { id })
+        .where('friend.userId=:id', { id })
+        .andWhere('friend.status IN (:...status)', { status: [...activeStatus] })
         .getMany()
     ).map((e) => e.friend.id);
   }
