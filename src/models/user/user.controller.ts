@@ -108,7 +108,7 @@ export class UserController {
   @Get('/:id/stats')
   @UseGuards(JwtAuthGuard, UserOwnerGuard)
   async getStats(@Param('id') id: string): Promise<GetUserStatsResponse> {
-    return this.userService.getStats(id);
+    return this.userGetService.getStats(id);
   }
 
   @Get('/photo/:id')
@@ -116,7 +116,7 @@ export class UserController {
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(@Param('id') id: string): Promise<ReadStream> {
-    return this.userService.getPhoto(id);
+    return this.userGetService.getPhoto(id);
   }
 
   @Get('/:id/travel')

@@ -135,29 +135,4 @@ export class UserService {
 
     return this.userHelperService.filter(user);
   }
-
-  async getStats(id: string): Promise<GetUserStatsResponse> {
-    if (!id) throw new BadRequestException();
-
-    const travelCount = await this.travelService.getCountByUserId(id);
-    const postCount = await this.postService.getCountByUserId(id);
-
-    return {
-      travelCount,
-      postCount,
-    };
-  }
-
-  async getPhoto(id: string) {
-    if (!id) throw new BadRequestException();
-
-    const user = await User.findOne({ where: { id } });
-
-    if (user?.photoFn) {
-      const filePath = FileManagementUser.getUserPhoto(id, user.photoFn);
-      return createReadStream(filePath);
-    }
-
-    return createReadStream(FileManagement.storageDir('user.png'));
-  }
 }
