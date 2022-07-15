@@ -81,11 +81,7 @@ export class PostService {
   async findAllByTravelId(id: string, page = 1): Promise<GetPostsResponse> {
     if (!id) throw new Error('id is empty');
 
-    const totalPostsCount = await Post.count({
-      where: { travel: { id } },
-    });
-
-    const posts = await this.dataSource
+    const [posts, totalPostsCount] = await this.dataSource
       .createQueryBuilder()
       .select(['post', 'travel.id', 'user.id'])
       .from(Post, 'post')
@@ -95,7 +91,7 @@ export class PostService {
       .orderBy('post.createdAt', 'DESC')
       .skip(config.itemsCountPerPage * (page - 1))
       .take(config.itemsCountPerPage)
-      .getMany();
+      .getManyAndCount();
 
     return {
       posts: posts.map((e) => this.filter(e)),

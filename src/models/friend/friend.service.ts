@@ -20,6 +20,7 @@ import { Friend } from './entities/friend.entity';
 import { User } from '../user/entities/user.entity';
 import { DataSource } from 'typeorm';
 import { UserService } from '../user/user.service';
+import { config } from '../../config/config';
 
 interface StatusObj {
   waiting?: boolean;
@@ -59,7 +60,7 @@ export class FriendService {
     return this.filter(friendship);
   }
 
-  async findAllByUserId(id: string, statusObj?: StatusObj): Promise<GetFriendsResponse> {
+  async findAllByUserId(id: string, page = 1, statusObj?: StatusObj): Promise<GetFriendsResponse> {
     if (!id) throw new BadRequestException();
 
     const activeStatus = Object.entries(
@@ -72,7 +73,7 @@ export class FriendService {
       .filter((e) => e[1])
       .map((e) => e[0]);
 
-    const friendship = await this.dataSource
+    const [friendship, totalFriendsCount] = await this.dataSource
       .createQueryBuilder()
       .select(['friendship', 'friend', 'user'])
       .from(Friend, 'friendship')
@@ -82,9 +83,15 @@ export class FriendService {
       .andWhere('`friendship`.`status` IN (:...status)', {
         status: [...activeStatus],
       })
-      .getMany();
+      .skip(config.itemsCountPerPage * (page - 1))
+      .take(config.itemsCountPerPage)
+      .getManyAndCount();
 
-    return friendship.map((e) => this.filter(e));
+    return {
+      friends: friendship.map((e) => this.filter(e)),
+      totalPages: Math.ceil(totalFriendsCount / config.itemsCountPerPage),
+      totalFriendsCount,
+    };
   }
 
   async update(id: string): Promise<UpdateFriendResponse> {

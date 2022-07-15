@@ -81,6 +81,7 @@ export class UserController {
     @Param('id') id: string,
     @Query('search') search: string,
     @Query('friends') friends: boolean,
+    @Query('page') page: number,
   ): Promise<GetUserSearchResponse> {
     return this.userService.searchUser(id, search, friends);
   }
@@ -152,8 +153,9 @@ export class UserController {
     @Query('waiting') waiting: boolean,
     @Query('accepted') accepted: boolean,
     @Query('invitation') invitation: boolean,
+    @Query('page') page: number,
   ): Promise<GetFriendsResponse> {
-    return this.friendService.findAllByUserId(id, {
+    return this.friendService.findAllByUserId(id, page || 1, {
       waiting,
       accepted,
       invitation,
