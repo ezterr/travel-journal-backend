@@ -20,7 +20,6 @@ import { Post } from '../post/entities/post.entity';
 import { UserHelperService } from './user-helper.service';
 import { TravelService } from '../travel/travel.service';
 import { PostService } from '../post/post.service';
-import { FriendService } from '../friend/friend.service';
 import { DataSource } from 'typeorm';
 import { FriendGetService } from '../friend/friend-get.service';
 import { TravelGetService } from '../travel/travel-get.service';
@@ -38,70 +37,6 @@ export class UserGetService {
     @Inject(forwardRef(() => PostGetService)) private postGetService: PostGetService,
     @Inject(forwardRef(() => DataSource)) private dataSource: DataSource,
   ) {}
-
-  async getStats(id: string): Promise<GetUserStatsResponse> {
-    if (!id) throw new BadRequestException();
-
-    const travelCount = await this.travelGetService.getCountByUserId(id);
-    const postCount = await this.postGetService.getCountByUserId(id);
-
-    return {
-      travelCount,
-      postCount,
-    };
-  }
-
-  async getPhoto(id: string) {
-    if (!id) throw new BadRequestException();
-
-    const user = await User.findOne({ where: { id } });
-
-    if (user?.photoFn) {
-      const filePath = FileManagementUser.getUserPhoto(id, user.photoFn);
-      return createReadStream(filePath);
-    }
-
-    return createReadStream(FileManagement.storageDir('user.png'));
-  }
-
-  async searchUser(
-    id: string | undefined,
-    search: string,
-    withFriends: boolean,
-    page = 1,
-  ): Promise<GetUserSearchResponse> {
-    if (!search || search.length < 2)
-      return {
-        users: [],
-        totalPages: 0,
-        totalUsersCount: 0,
-      };
-
-    const friendsId = await this.friendGetService.getFriendsIdByUserId(id, {
-      waiting: !withFriends,
-      invitation: !withFriends,
-      accepted: !withFriends,
-    });
-
-    const [users, totalUsersCount] = await this.dataSource
-      .createQueryBuilder()
-      .select(['user'])
-      .from(User, 'user')
-      .where('user.username LIKE :search', { search: `%${search ?? ''}%` })
-      .andWhere('NOT user.id IN (:...friendsId)', {
-        friendsId: [...(friendsId.length ? friendsId : ['null'])],
-      })
-      .andWhere('user.id <> :id', { id })
-      .skip(config.itemsCountPerPage * (page - 1))
-      .take(config.itemsCountPerPage)
-      .getManyAndCount();
-
-    return {
-      users: users.map((e) => this.userHelperService.filterPublicData(e)),
-      totalPages: Math.ceil(totalUsersCount / config.itemsCountPerPage),
-      totalUsersCount,
-    };
-  }
 
   async getIndex(id: string, page = 1): Promise<GetUserIndexResponse> {
     const friendsId = await this.friendGetService.getFriendsIdByUserId(id, { accepted: true });
@@ -146,5 +81,69 @@ export class UserGetService {
     if (!user) throw new NotFoundException();
 
     return this.userHelperService.filter(user);
+  }
+
+  async getStats(id: string): Promise<GetUserStatsResponse> {
+    if (!id) throw new BadRequestException();
+
+    const travelCount = await this.travelGetService.getCountByUserId(id);
+    const postCount = await this.postGetService.getCountByUserId(id);
+
+    return {
+      travelCount,
+      postCount,
+    };
+  }
+
+  async searchUser(
+    id: string | undefined,
+    search: string,
+    withFriends: boolean,
+    page = 1,
+  ): Promise<GetUserSearchResponse> {
+    if (!search || search.length < 2)
+      return {
+        users: [],
+        totalPages: 0,
+        totalUsersCount: 0,
+      };
+
+    const friendsId = await this.friendGetService.getFriendsIdByUserId(id, {
+      waiting: !withFriends,
+      invitation: !withFriends,
+      accepted: !withFriends,
+    });
+
+    const [users, totalUsersCount] = await this.dataSource
+      .createQueryBuilder()
+      .select(['user'])
+      .from(User, 'user')
+      .where('user.username LIKE :search', { search: `%${search ?? ''}%` })
+      .andWhere('NOT user.id IN (:...friendsId)', {
+        friendsId: [...(friendsId.length ? friendsId : ['null'])],
+      })
+      .andWhere('user.id <> :id', { id })
+      .skip(config.itemsCountPerPage * (page - 1))
+      .take(config.itemsCountPerPage)
+      .getManyAndCount();
+
+    return {
+      users: users.map((e) => this.userHelperService.filterPublicData(e)),
+      totalPages: Math.ceil(totalUsersCount / config.itemsCountPerPage),
+      totalUsersCount,
+    };
+  }
+
+  async getPhoto(id: string) {
+    if (!id) throw new BadRequestException();
+
+    const user = await User.findOne({ where: { id } });
+
+    if (user?.photoFn) {
+      const filePath = FileManagementUser.getUserPhoto(id, user.photoFn);
+      return createReadStream(filePath);
+    }
+
+    return createReadStream(FileManagement.storageDir('user.png'));
   }
 }
