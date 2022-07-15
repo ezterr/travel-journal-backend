@@ -7,18 +7,21 @@ export class Friend extends BaseEntity implements FriendInterface {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-  @ManyToOne((type) => User, (user) => user.friends)
+  @ManyToOne((type) => User, (user) => user.friends, {
+    onDelete: 'CASCADE',
+  })
   @JoinTable()
   public user: User;
 
-  @ManyToOne((type) => User, (user) => user.friendsRevert)
+  @ManyToOne((type) => User, (user) => user.friendsRevert, {
+    onDelete: 'CASCADE',
+  })
   @JoinTable()
   public friend: User;
 
   @Column({
     type: 'enum',
     enum: FriendStatus,
-    default: FriendStatus.Waiting,
   })
   public status: FriendStatus;
 }

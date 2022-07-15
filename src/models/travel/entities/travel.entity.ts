@@ -37,7 +37,9 @@ export class Travel extends BaseEntity implements TravelInterface {
   @Column({ type: 'date' })
   public endAt: Date;
 
-  @ManyToOne((type) => User, (user) => user.travels)
+  @ManyToOne((type) => User, (user) => user.travels, {
+    onDelete: 'CASCADE',
+  })
   @JoinTable()
   public user: User;
 
