@@ -30,6 +30,7 @@ import { ReadStream } from 'fs';
 import { CreatePostDto } from '../post/dto/create-post.dto';
 import { PostService } from '../post/post.service';
 import { UserService } from '../user/user.service';
+import { TravelFriendAndOwnerGuard } from '../../common/guards/travel-friend-and-owner.guard';
 
 @Controller('/api/travel')
 @UseGuards(JwtAuthGuard)
@@ -40,7 +41,7 @@ export class TravelController {
   ) {}
 
   @Get('/:id')
-  @UseGuards() //guar przyjaciele
+  @UseGuards(TravelFriendAndOwnerGuard)
   async findOne(@Param('id') id: string): Promise<GetTravelResponse> {
     return this.travelService.findOne(id);
   }
@@ -63,7 +64,7 @@ export class TravelController {
   }
 
   @Get('/photo/:id')
-  @UseGuards() //guard znajomi
+  @UseGuards(TravelFriendAndOwnerGuard)
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(@Param('id') id: string): Promise<ReadStream> {
@@ -82,7 +83,7 @@ export class TravelController {
   }
 
   @Get('/:id/post')
-  @UseGuards() //guard znajomi
+  @UseGuards(TravelFriendAndOwnerGuard)
   async findAllPosts(@Param('id') id: string): Promise<GetPostsResponse> {
     return this.postService.findAllByTravelId(id);
   }

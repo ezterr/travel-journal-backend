@@ -9,8 +9,9 @@ import { Request } from 'express';
 import { User } from '../../models/user/entities/user.entity';
 import { Travel } from '../../models/travel/entities/travel.entity';
 import { DataSource } from 'typeorm';
+import { Friend } from '../../models/friend/entities/friend.entity';
 
-export class TravelOwnerGuard implements CanActivate {
+export class TravelFriendAndOwnerGuard implements CanActivate {
   constructor(@Inject(DataSource) private readonly dataSource: DataSource) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -21,7 +22,7 @@ export class TravelOwnerGuard implements CanActivate {
     if (!travelId) throw new BadRequestException();
     if (!user) throw new Error('user is undefined');
 
-    const travel = await this.dataSource
+    const travelSimple = await this.dataSource
       .createQueryBuilder()
       .select(['travel.id', 'user.id'])
       .from(Travel, 'travel')
@@ -29,8 +30,18 @@ export class TravelOwnerGuard implements CanActivate {
       .where('`travel`.`id`=:travelId', { travelId })
       .getOne();
 
-    if (!travel) throw new NotFoundException();
+    if (!travelSimple) throw new NotFoundException();
 
-    return travel.user.id === user.id;
+    const friend = await this.dataSource
+      .createQueryBuilder()
+      .select(['friend.id', 'userFriend.id'])
+      .from(Friend, 'friend')
+      .leftJoin('friend.friend', 'userFriend')
+      .where('`friend`.`userId`=:id AND `friend`.`status`="accepted"', {
+        id: travelSimple.user.id,
+      })
+      .getOne();
+
+    return travelSimple.user.id === user.id || friend.friend.id === user.id;
   }
 }
