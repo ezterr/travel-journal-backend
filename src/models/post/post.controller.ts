@@ -20,6 +20,7 @@ import { ReadStream } from 'fs';
 import { PostOwnerGuard } from '../../common/guards/post-owner.guard';
 import { TravelService } from '../travel/travel.service';
 import { PostFriendAndOwnerGuard } from '../../common/guards/post-friend-and-owner.guard';
+import { DeletePostResponse } from '../../types';
 
 @Controller('/api/post')
 @UseGuards(JwtAuthGuard)
@@ -45,7 +46,7 @@ export class PostController {
 
   @Delete(':id')
   @UseGuards(PostOwnerGuard)
-  remove(@Param('id') id: string) {
+  remove(@Param('id') id: string): Promise<DeletePostResponse> {
     return this.postService.remove(id);
   }
 

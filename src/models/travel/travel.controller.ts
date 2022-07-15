@@ -12,6 +12,7 @@ import {
   Header,
   Inject,
   forwardRef,
+  Query,
 } from '@nestjs/common';
 import { TravelService } from './travel.service';
 import { UpdateTravelDto } from './dto/update-travel.dto';
@@ -84,7 +85,10 @@ export class TravelController {
 
   @Get('/:id/post')
   @UseGuards(TravelFriendAndOwnerGuard)
-  async findAllPosts(@Param('id') id: string): Promise<GetPostsResponse> {
-    return this.postService.findAllByTravelId(id);
+  async findAllPosts(
+    @Param('id') id: string,
+    @Query('page') page: number,
+  ): Promise<GetPostsResponse> {
+    return this.postService.findAllByTravelId(id, page || 1);
   }
 }

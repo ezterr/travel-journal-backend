@@ -9,6 +9,7 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
 import {
   CreatePostResponse,
+  DeletePostResponse,
   GetPostResponse,
   GetPostsResponse,
   PostSaveResponseData,
@@ -19,6 +20,7 @@ import { FileManagementPost } from '../../common/utils/file-management/file-mana
 import { createReadStream, ReadStream } from 'fs';
 import { FileManagement } from '../../common/utils/file-management/file-management';
 import { DataSource } from 'typeorm';
+import { config } from '../../config/config';
 
 @Injectable()
 export class PostService {
@@ -76,8 +78,12 @@ export class PostService {
     return this.filter(post);
   }
 
-  async findAllByTravelId(id: string): Promise<GetPostsResponse> {
+  async findAllByTravelId(id: string, page = 1): Promise<GetPostsResponse> {
     if (!id) throw new Error('id is empty');
+
+    const totalPostsCount = await Post.count({
+      where: { travel: { id } },
+    });
 
     const posts = await this.dataSource
       .createQueryBuilder()
@@ -85,11 +91,17 @@ export class PostService {
       .from(Post, 'post')
       .leftJoin('post.travel', 'travel')
       .leftJoin('travel.user', 'user')
-      .where('`travel`.`id`=:id', { id })
-      .orderBy('`post`.`createdAt`', 'DESC')
+      .where('travel.id=:id', { id })
+      .orderBy('post.createdAt', 'DESC')
+      .skip(config.itemsCountPerPage * (page - 1))
+      .take(config.itemsCountPerPage)
       .getMany();
 
-    return posts.map((e) => this.filter(e));
+    return {
+      posts: posts.map((e) => this.filter(e)),
+      totalPages: Math.ceil(totalPostsCount / config.itemsCountPerPage),
+      totalPostsCount,
+    };
   }
 
   async update(id: string, updatePostDto: UpdatePostDto, file: Express.Multer.File) {
@@ -132,7 +144,7 @@ export class PostService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<DeletePostResponse> {
     if (!id) throw new BadRequestException();
 
     const post = await this.findOneById(id);
