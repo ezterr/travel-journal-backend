@@ -30,8 +30,6 @@ export class UserFriendAndOwnerGuard implements CanActivate {
       .where('`friend`.`userId`=:id AND `friend`.`status`="accepted"', { id: ownerId })
       .getOne();
 
-    console.log(friend);
-
     return user.id === ownerId || user.id === friend.friend.id;
   }
 }

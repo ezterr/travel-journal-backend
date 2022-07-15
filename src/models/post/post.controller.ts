@@ -19,6 +19,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ReadStream } from 'fs';
 import { PostOwnerGuard } from '../../common/guards/post-owner.guard';
 import { TravelService } from '../travel/travel.service';
+import { PostFriendAndOwnerGuard } from '../../common/guards/post-friend-and-owner.guard';
 
 @Controller('/api/post')
 @UseGuards(JwtAuthGuard)
@@ -26,7 +27,7 @@ export class PostController {
   constructor(@Inject(forwardRef(() => PostService)) private readonly postService: PostService) {}
 
   @Get('/:id')
-  @UseGuards() //guard znajomi
+  @UseGuards(PostFriendAndOwnerGuard)
   findOne(@Param('id') id: string) {
     return this.postService.findOne(id);
   }
@@ -49,7 +50,7 @@ export class PostController {
   }
 
   @Get('/photo/:id')
-  @UseGuards() //guard znajomi
+  @UseGuards(PostFriendAndOwnerGuard)
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(@Param('id') id: string): Promise<ReadStream> {
