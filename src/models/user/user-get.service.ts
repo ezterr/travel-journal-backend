@@ -24,6 +24,7 @@ import { FriendService } from '../friend/friend.service';
 import { DataSource } from 'typeorm';
 import { FriendGetService } from '../friend/friend-get.service';
 import { TravelGetService } from '../travel/travel-get.service';
+import { PostGetService } from '../post/post-get.service';
 
 @Injectable()
 export class UserGetService {
@@ -32,8 +33,9 @@ export class UserGetService {
     @Inject(forwardRef(() => UserHelperService))
     private readonly userHelperService: UserHelperService,
     @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
-    @Inject(forwardRef(() => PostService)) private readonly postService: PostService,
     @Inject(forwardRef(() => TravelService)) private readonly travelGetService: TravelGetService,
+    @Inject(forwardRef(() => PostService)) private readonly postService: PostService,
+    @Inject(forwardRef(() => PostGetService)) private postGetService: PostGetService,
     @Inject(forwardRef(() => DataSource)) private dataSource: DataSource,
   ) {}
 
@@ -41,7 +43,7 @@ export class UserGetService {
     if (!id) throw new BadRequestException();
 
     const travelCount = await this.travelGetService.getCountByUserId(id);
-    const postCount = await this.postService.getCountByUserId(id);
+    const postCount = await this.postGetService.getCountByUserId(id);
 
     return {
       travelCount,

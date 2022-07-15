@@ -7,24 +7,19 @@ import {
 } from '@nestjs/common';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { CreatePostDto } from './dto/create-post.dto';
-import {
-  CreatePostResponse,
-  DeletePostResponse,
-  GetPostResponse,
-  GetPostsResponse,
-  PostSaveResponseData,
-} from '../../types';
+import { CreatePostResponse, DeletePostResponse, PostSaveResponseData } from '../../types';
 import { Travel } from '../travel/entities/travel.entity';
 import { Post } from './entities/post.entity';
 import { FileManagementPost } from '../../common/utils/file-management/file-management-post';
-import { createReadStream, ReadStream } from 'fs';
-import { FileManagement } from '../../common/utils/file-management/file-management';
 import { DataSource } from 'typeorm';
-import { config } from '../../config/config';
+import { PostGetService } from './post-get.service';
 
 @Injectable()
 export class PostService {
-  constructor(@Inject(forwardRef(() => DataSource)) private dataSource: DataSource) {}
+  constructor(
+    @Inject(forwardRef(() => DataSource)) private dataSource: DataSource,
+    @Inject(forwardRef(() => PostGetService)) private postGetService: PostGetService,
+  ) {}
 
   async create(
     travelId: string,
@@ -69,42 +64,11 @@ export class PostService {
     }
   }
 
-  async findOne(id: string): Promise<GetPostResponse> {
-    if (!id) throw new BadRequestException();
-
-    const post = await this.findOneById(id);
-    if (!post) throw new NotFoundException();
-
-    return this.filter(post);
-  }
-
-  async findAllByTravelId(id: string, page = 1): Promise<GetPostsResponse> {
-    if (!id) throw new Error('id is empty');
-
-    const [posts, totalPostsCount] = await this.dataSource
-      .createQueryBuilder()
-      .select(['post', 'travel.id', 'user.id'])
-      .from(Post, 'post')
-      .leftJoin('post.travel', 'travel')
-      .leftJoin('travel.user', 'user')
-      .where('travel.id=:id', { id })
-      .orderBy('post.createdAt', 'DESC')
-      .skip(config.itemsCountPerPage * (page - 1))
-      .take(config.itemsCountPerPage)
-      .getManyAndCount();
-
-    return {
-      posts: posts.map((e) => this.filter(e)),
-      totalPages: Math.ceil(totalPostsCount / config.itemsCountPerPage),
-      totalPostsCount,
-    };
-  }
-
   async update(id: string, updatePostDto: UpdatePostDto, file: Express.Multer.File) {
     try {
       if (!id) throw new BadRequestException();
 
-      const post = await this.findOneById(id);
+      const post = await this.postGetService.findOneById(id);
       if (!post || !post.travel || !post.travel.user) throw new NotFoundException();
 
       post.title = updatePostDto.title ?? post.title;
@@ -143,7 +107,7 @@ export class PostService {
   async remove(id: string): Promise<DeletePostResponse> {
     if (!id) throw new BadRequestException();
 
-    const post = await this.findOneById(id);
+    const post = await this.postGetService.findOneById(id);
     if (!post || !post.travel || !post.travel.user) throw new NotFoundException();
 
     if (post.photoFn)
@@ -151,43 +115,6 @@ export class PostService {
     await post.remove();
 
     return this.filter(post);
-  }
-
-  async getPhoto(id: string): Promise<ReadStream> {
-    if (!id) throw new BadRequestException();
-
-    const post = await this.findOneById(id);
-    if (post.photoFn && post.travel && post.travel.user) {
-      const filePath = FileManagementPost.getPostPhoto(
-        post.travel.user.id,
-        post.travel.id,
-        post.photoFn,
-      );
-      return createReadStream(filePath);
-    }
-
-    return createReadStream(FileManagement.storageDir('no-image.png'));
-  }
-
-  async findOneById(id: string) {
-    if (!id) throw new Error('postId is empty');
-
-    return this.dataSource
-      .createQueryBuilder()
-      .select(['post', 'travel.id', 'user.id'])
-      .from(Post, 'post')
-      .leftJoin('post.travel', 'travel')
-      .leftJoin('travel.user', 'user')
-      .where('post.id=:id', { id })
-      .getOne();
-  }
-
-  async getCountByUserId(id: string): Promise<number> {
-    if (!id) throw new BadRequestException();
-
-    return Post.count({
-      where: { travel: { user: { id } } },
-    });
   }
 
   filter(post: Post): PostSaveResponseData {

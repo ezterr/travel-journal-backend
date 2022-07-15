@@ -32,6 +32,7 @@ import { CreatePostDto } from '../post/dto/create-post.dto';
 import { PostService } from '../post/post.service';
 import { TravelFriendAndOwnerGuard } from '../../common/guards/travel-friend-and-owner.guard';
 import { TravelGetService } from './travel-get.service';
+import { PostGetService } from '../post/post-get.service';
 
 @Controller('/api/travel')
 @UseGuards(JwtAuthGuard)
@@ -40,6 +41,7 @@ export class TravelController {
     @Inject(forwardRef(() => TravelService)) private readonly travelService: TravelService,
     @Inject(forwardRef(() => TravelService)) private readonly travelGetService: TravelGetService,
     @Inject(forwardRef(() => PostService)) private readonly postService: PostService,
+    @Inject(forwardRef(() => PostGetService)) private postGetService: PostGetService,
   ) {}
 
   @Get('/:id')
@@ -90,6 +92,6 @@ export class TravelController {
     @Param('id') id: string,
     @Query('page') page: number,
   ): Promise<GetPostsResponse> {
-    return this.postService.findAllByTravelId(id, page || 1);
+    return this.postGetService.findAllByTravelId(id, page || 1);
   }
 }

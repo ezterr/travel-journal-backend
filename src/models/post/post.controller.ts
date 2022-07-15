@@ -21,16 +21,20 @@ import { PostOwnerGuard } from '../../common/guards/post-owner.guard';
 import { TravelService } from '../travel/travel.service';
 import { PostFriendAndOwnerGuard } from '../../common/guards/post-friend-and-owner.guard';
 import { DeletePostResponse } from '../../types';
+import { PostGetService } from './post-get.service';
 
 @Controller('/api/post')
 @UseGuards(JwtAuthGuard)
 export class PostController {
-  constructor(@Inject(forwardRef(() => PostService)) private readonly postService: PostService) {}
+  constructor(
+    @Inject(forwardRef(() => PostService)) private readonly postService: PostService,
+    @Inject(forwardRef(() => PostGetService)) private postGetService: PostGetService,
+  ) {}
 
   @Get('/:id')
   @UseGuards(PostFriendAndOwnerGuard)
   findOne(@Param('id') id: string) {
-    return this.postService.findOne(id);
+    return this.postGetService.findOne(id);
   }
 
   @Patch(':id')
@@ -55,6 +59,6 @@ export class PostController {
   @Header('Content-Type', 'image/png')
   @Header('cross-origin-resource-policy', 'cross-origin')
   async getPhoto(@Param('id') id: string): Promise<ReadStream> {
-    return this.postService.getPhoto(id);
+    return this.postGetService.getPhoto(id);
   }
 }
