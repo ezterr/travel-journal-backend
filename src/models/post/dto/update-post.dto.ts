@@ -5,11 +5,11 @@ import { UpdatePostDtoInterface } from '../../../types';
 
 export class UpdatePostDto extends PartialType(CreatePostDto) implements UpdatePostDtoInterface {
   @IsString()
-  @Length(2, 128)
+  @Length(2, 64)
   public title: string;
 
   @IsString()
-  @Length(2, 128)
+  @Length(2, 64)
   public destination: string;
 
   @IsString()

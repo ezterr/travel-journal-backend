@@ -7,10 +7,10 @@ export class Post extends BaseEntity implements PostInterface {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-  @Column({ length: 128 })
+  @Column({ length: 64 })
   public title: string;
 
-  @Column({ length: 128 })
+  @Column({ length: 64 })
   public destination: string;
 
   @Column({ length: 512 })

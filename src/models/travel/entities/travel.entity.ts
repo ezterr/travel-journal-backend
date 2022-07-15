@@ -16,13 +16,13 @@ export class Travel extends BaseEntity implements TravelInterface {
   @PrimaryGeneratedColumn('uuid')
   public id: string;
 
-  @Column({ length: 128 })
+  @Column({ length: 64 })
   public title: string;
 
   @Column({ length: 512 })
   public description: string;
 
-  @Column({ length: 128 })
+  @Column({ length: 64 })
   public destination: string;
 
   @Column({ precision: 4 })

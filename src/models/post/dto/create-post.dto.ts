@@ -3,11 +3,11 @@ import { CreatePostDtoInterface } from '../../../types';
 
 export class CreatePostDto implements CreatePostDtoInterface {
   @IsString()
-  @Length(2, 128)
+  @Length(2, 64)
   public title: string;
 
   @IsString()
-  @Length(2, 128)
+  @Length(2, 64)
   public destination: string;
 
   @IsString()
