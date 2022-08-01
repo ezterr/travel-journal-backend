@@ -2,7 +2,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { config } from '../config/config';
 import { UnauthorizedException } from '@nestjs/common';
-import { User } from '../models/user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 
 function cookieExtractor(req: any): null | string {
   return req && req.cookies ? req.cookies?.access_token ?? null : null;

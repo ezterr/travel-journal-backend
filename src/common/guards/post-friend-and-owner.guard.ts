@@ -6,10 +6,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { User } from '../../models/user/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 import { DataSource } from 'typeorm';
-import { Post } from '../../models/post/entities/post.entity';
-import { Friend } from '../../models/friend/entities/friend.entity';
+import { Post } from '../../post/entities/post.entity';
+import { Friend } from '../../friend/entities/friend.entity';
 
 export class PostFriendAndOwnerGuard implements CanActivate {
   constructor(@Inject(DataSource) private readonly dataSource: DataSource) {}

@@ -6,9 +6,9 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { User } from '../../models/user/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 import { DataSource } from 'typeorm';
-import { Friend } from '../../models/friend/entities/friend.entity';
+import { Friend } from '../../friend/entities/friend.entity';
 
 @Injectable()
 export class UserFriendAndOwnerGuard implements CanActivate {

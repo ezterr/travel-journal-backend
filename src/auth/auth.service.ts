@@ -1,5 +1,5 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { User } from '../models/user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 import { compare } from 'bcrypt';
 import { Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
@@ -7,7 +7,7 @@ import { v4 as uuid } from 'uuid';
 import { config } from '../config/config';
 
 import { LoginResponse, LogoutAllResponse, LogoutResponse } from '../types';
-import { UserHelperService } from '../models/user/user-helper.service';
+import { UserHelperService } from '../user/user-helper.service';
 
 @Injectable()
 export class AuthService {

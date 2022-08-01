@@ -12,7 +12,7 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { Response } from 'express';
 import { AuthService } from './auth.service';
-import { User as User } from '../models/user/entities/user.entity';
+import { User as User } from '../user/entities/user.entity';
 import { UserObj } from '../common/decorators/user.decorator';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import {
@@ -21,15 +21,13 @@ import {
   LogoutAllResponse,
   LogoutResponse,
 } from '../types';
-import { UserService } from '../models/user/user.service';
-import { UserGetService } from '../models/user/user-get.service';
+import { UserService } from '../user/user.service';
 
 @Controller('/api/auth')
 export class AuthController {
   constructor(
     @Inject(forwardRef(() => AuthService)) private authService: AuthService,
     @Inject(forwardRef(() => UserService)) private userService: UserService,
-    @Inject(forwardRef(() => UserGetService)) private readonly userGetService: UserGetService,
   ) {}
 
   @Post('/login')
@@ -60,6 +58,6 @@ export class AuthController {
   @Get('/user')
   @UseGuards(JwtAuthGuard)
   async getAuthUser(@UserObj() user: User): Promise<GetUserFromTokenResponse> {
-    return this.userGetService.findOne(user.id);
+    return this.userService.findOne(user.id);
   }
 }

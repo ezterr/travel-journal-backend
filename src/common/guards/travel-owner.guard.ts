@@ -6,8 +6,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { User } from '../../models/user/entities/user.entity';
-import { Travel } from '../../models/travel/entities/travel.entity';
+import { User } from '../../user/entities/user.entity';
+import { Travel } from '../../travel/entities/travel.entity';
 import { DataSource } from 'typeorm';
 
 export class TravelOwnerGuard implements CanActivate {

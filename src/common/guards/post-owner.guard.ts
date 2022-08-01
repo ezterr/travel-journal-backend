@@ -6,9 +6,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { User } from '../../models/user/entities/user.entity';
+import { User } from '../../user/entities/user.entity';
 import { DataSource } from 'typeorm';
-import { Post } from '../../models/post/entities/post.entity';
+import { Post } from '../../post/entities/post.entity';
 
 export class PostOwnerGuard implements CanActivate {
   constructor(@Inject(DataSource) private readonly dataSource: DataSource) {}
